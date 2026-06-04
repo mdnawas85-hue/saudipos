@@ -1573,12 +1573,12 @@ input:checked+.toggle-slider:before{transform:translateX(16px);background:#fff}
       <div class="screen-title" style="padding:0 0 4px" data-i18n="settings-title">Settings</div>
       <div class="settings-section">
         <div class="settings-section-title">🏪 Business Info</div>
-        <div style="padding:10px 16px;background:rgba(88,166,255,.07);border-bottom:1px solid var(--border);font-size:12px;color:var(--muted);display:flex;align-items:center;gap:8px">
-          ⚙️ Business name, VAT, currency and receipt settings are managed in <strong style="color:#58a6ff;cursor:pointer" onclick="document.querySelector('[data-screen=settings]').click()">IT Admin Portal → Settings</strong>
-        </div>
         <div class="settings-row">
           <div><div class="settings-label">Business Name</div></div>
-          <div style="font-size:13px;font-weight:700" id="set-biz-name-display">—</div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <input class="form-input" id="set-biz-name" style="width:160px;padding:6px 10px;font-size:13px;text-align:right" placeholder="My Business"/>
+            <button onclick="saveBizName()" class="btn btn-primary" style="padding:6px 12px;font-size:12px">Save</button>
+          </div>
         </div>
         <div class="settings-row">
           <div><div class="settings-label">Currency</div></div>
@@ -1590,7 +1590,6 @@ input:checked+.toggle-slider:before{transform:translateX(16px);background:#fff}
         </div>
       </div>
       <!-- Hidden inputs kept for JS compatibility -->
-      <input type="hidden" id="set-biz-name"/>
       <input type="hidden" id="set-currency"/>
       <input type="hidden" id="set-vat"/>
       <input type="hidden" id="set-footer"/>
