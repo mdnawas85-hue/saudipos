@@ -2701,6 +2701,7 @@ const sb=supabase.createClient(SB_URL,SB_KEY);
 
 // ── STATE ────────────────────────────────────────────────────────────────────
 let _user=null,_profile=null,_bizId=null;
+let _signingIn=false; // guard against duplicate onSignedIn calls
 let _businessId=null; // parent business id (never changes)
 let _branches=[]; // list of branches
 let _currentBranch=null; // selected branch object
@@ -2927,7 +2928,7 @@ async function doLogout(){
   sessionStorage.removeItem('posRole');
   sessionStorage.removeItem('sposBranchId');
   await sb.auth.signOut();
-  _user=null;_profile=null;_bizId=null;_businessId=null;_branches=[];_currentBranch=null;
+  _user=null;_profile=null;_bizId=null;_businessId=null;_branches=[];_currentBranch=null;_signingIn=false;
   clearInterval(_kdsInterval);clearInterval(_kdsClockInterval);
   document.getElementById('app').style.display='none';
   document.getElementById('kds-screen').style.display='none';
@@ -2940,6 +2941,8 @@ async function doLogout(){
 }
 
 async function onSignedIn(user){
+  if(_signingIn) return;
+  _signingIn=true;
   _user=user;
   document.getElementById('auth-screen').style.display='none';
   document.getElementById('loading').style.display='flex';
@@ -2962,15 +2965,16 @@ async function onSignedIn(user){
   } else if(bizArr&&!Array.isArray(bizArr)){
     biz=bizArr;
   }
-  // Auto-create business if missing (e.g. signup was interrupted)
+  // Auto-create business if missing — use upsert on owner_id to prevent duplicates
   if(!biz){
     const meta=user.user_metadata||{};
-    const{data:newBiz}=await sb.from('businesses').insert({
+    const{data:newBiz}=await sb.from('businesses').upsert({
       owner_id:user.id,
       name:meta.biz_name||user.email?.split('@')[0]||'My Business',
       type:meta.biz_type||'restaurant',
-      settings:{currency:'SAR',vat_rate:15,receipt_footer:'Thank you!',show_vat:true}
-    }).select().single();
+      settings:{currency:'SAR',vat_rate:15,receipt_footer:'Thank you!',show_vat:true,
+        plan:_selectedPlan||'starter'}
+    },{onConflict:'owner_id',ignoreDuplicates:true}).select().single();
     biz=newBiz;
   }
   if(biz){
