@@ -7479,7 +7479,7 @@ function getPlanLimits(){
 }
 function planGate(feature, requiredPlan){
   const planRank={starter:0,growth:1,enterprise:2};
-  const current=_settings.plan||'growth';
+  const current=_settings.plan||'starter';
   if((planRank[current]??0)>=(planRank[requiredPlan]??0)) return true;
   showUpgradeNotice(feature, requiredPlan);
   return false;
