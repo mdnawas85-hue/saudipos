@@ -3099,7 +3099,8 @@ function showBranchScreen(){
   // Render branch cards
   const container=document.getElementById('branch-cards');
   container.innerHTML='';
-  _branches.forEach(b=>{
+  const activeBranches=_branches.filter(b=>b.is_active!==false);
+  activeBranches.forEach(b=>{
     const card=document.createElement('div');
     card.style.cssText='background:var(--bg2);border:2px solid rgba(0,165,80,.3);border-radius:16px;padding:20px 16px;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;gap:6px';
     card.innerHTML=`<div style="font-size:22px">🏪</div>
@@ -3112,6 +3113,9 @@ function showBranchScreen(){
     card.onclick=()=>selectBranch(b);
     container.appendChild(card);
   });
+  if(activeBranches.length===0){
+    container.innerHTML='<div style="text-align:center;padding:40px;color:var(--muted);font-size:13px">⚠️ No active branches. Contact support to upgrade your plan.</div>';
+  }
   // Hide old add branch button (now inside IT Admin portal)
   const addWrap=document.getElementById('branch-add-btn-wrap');
   if(addWrap) addWrap.style.display='none';
