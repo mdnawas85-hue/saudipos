@@ -6959,31 +6959,12 @@ function exportSAClientsCSV(){
 const PLAN_BRANCH_LIMITS={starter:1,growth:3,enterprise:20};
 const PLAN_STAFF_LIMITS={starter:3,growth:Infinity,enterprise:Infinity};
 
-async function handlePlanDowngrade(bizId, oldPlan, newPlan){
-  const newBranchLimit=PLAN_BRANCH_LIMITS[newPlan]||1;
-  const newStaffLimit=PLAN_STAFF_LIMITS[newPlan]||3;
-  // Fetch current branches for this business
-  const{data:branches}=await sb.from('branches').select('*').eq('business_id',bizId).order('created_at',{ascending:true});
-  const activeBranches=(branches||[]).filter(b=>b.is_active!==false);
-  const branchesOver=activeBranches.length-newBranchLimit;
-  // Disable extra branches (keep newest disabled, preserve oldest)
-  if(branchesOver>0){
-    const toDisable=activeBranches.slice(newBranchLimit);
-    for(const b of toDisable){
-      await sb.from('branches').update({is_active:false}).eq('id',b.id);
-    }
-  }
-  // Fetch staff count
-  const{data:staff}=await sb.from('staff').select('id').eq('biz_id',bizId);
-  const staffCount=(staff||[]).length;
-  return {branchesOver:Math.max(0,branchesOver),staffOver:Math.max(0,staffCount-newStaffLimit)};
-}
+const planRank={starter:0,growth:1,enterprise:2};
 
 function saChangePlan(bizId){
   const c=_saClients.find(x=>x.id===bizId);
   const current=c?.settings?.plan||'growth';
   const name=c?.settings?.biz_name||c?.name||'this client';
-  const planRank={starter:0,growth:1,enterprise:2};
   openSAModal({
     title:'📋 Change Plan',
     subtitle:`${name} · Current: ${current.toUpperCase()}`,
@@ -6992,54 +6973,96 @@ function saChangePlan(bizId){
       <label style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:${current===p?'rgba(0,165,80,.1)':'var(--bg3)'};border:2px solid ${current===p?'rgba(0,165,80,.5)':'var(--border)'};border-radius:10px;cursor:pointer">
         <input type="radio" name="sa-plan" value="${p}" ${current===p?'checked':''} style="accent-color:var(--accent2)"/>
         <div style="flex:1">
-          <div style="font-size:13px;font-weight:700;text-transform:uppercase">${p}${(planRank[p]||0)<(planRank[current]||0)?'  <span style="font-size:10px;color:var(--amber);background:rgba(210,153,34,.15);padding:2px 6px;border-radius:6px">DOWNGRADE</span>':''}</div>
+          <div style="font-size:13px;font-weight:700;text-transform:uppercase">${p}${(planRank[p]||0)<(planRank[current]||0)?'&nbsp;<span style="font-size:10px;color:var(--amber);background:rgba(210,153,34,.15);padding:2px 6px;border-radius:6px">DOWNGRADE</span>':''}</div>
           <div style="font-size:11px;color:var(--muted)">${desc}</div>
         </div>
         <div style="font-size:14px;font-weight:800;color:var(--accent2)">${price} SAR/mo</div>
       </label>`).join('')}
     </div>
-    <div id="downgrade-warning" style="display:none;margin-top:12px;padding:12px;background:rgba(248,81,73,.08);border:1px solid rgba(248,81,73,.3);border-radius:10px;font-size:12px;color:var(--red)"></div>`,
+    <div id="downgrade-branch-picker" style="display:none;margin-top:14px"></div>`,
     confirmLabel:'💾 Save Plan',
     confirmColor:'var(--accent2)',
     onConfirm:async()=>{
       const plan=document.querySelector('input[name="sa-plan"]:checked')?.value;
       if(!plan){showToast('Select a plan',true);return false;}
       const isDowngrade=(planRank[plan]||0)<(planRank[current]||0);
-      // Handle downgrade: disable extra branches, warn about staff
-      let downgradeMsg='';
+      const newLimit=PLAN_BRANCH_LIMITS[plan]||1;
       if(isDowngrade){
-        const result=await handlePlanDowngrade(bizId,current,plan);
-        if(result.branchesOver>0) downgradeMsg+=`⚠️ ${result.branchesOver} branch${result.branchesOver>1?'es':''} disabled (exceed new limit). `;
-        if(result.staffOver>0) downgradeMsg+=`⚠️ ${result.staffOver} staff over new limit — they remain but no new staff can be added. `;
-      }
-      const error=await _saUpdate(bizId,{...(c?.settings||{}),plan});
-      if(error){showToast('RLS blocked — run SA SQL in Supabase',true);_showSASqlInstructions();}
-      else{
-        showToast(downgradeMsg?`✅ Plan changed. ${downgradeMsg}`:'✅ Plan updated!',!!downgradeMsg,5000);
+        // Check if branch picker is shown and validate selection
+        const picker=document.getElementById('downgrade-branch-picker');
+        const checkboxes=picker?picker.querySelectorAll('input[name="keep-branch"]:checked'):[];
+        if(checkboxes.length>0){
+          // User selected which branches to keep — disable the rest
+          const keepIds=Array.from(checkboxes).map(cb=>cb.value);
+          if(keepIds.length>newLimit){
+            showToast(`⚠️ Please select only ${newLimit} branch${newLimit>1?'es':''} to keep`,true);
+            return false;
+          }
+          const{data:allBranches}=await sb.from('branches').select('id,is_active').eq('business_id',bizId);
+          for(const b of (allBranches||[])){
+            const shouldBeActive=keepIds.includes(b.id);
+            if(b.is_active!==shouldBeActive){
+              await sb.from('branches').update({is_active:shouldBeActive}).eq('id',b.id);
+            }
+          }
+        }
+        // Warn about staff
+        const{data:staff}=await sb.from('staff').select('id').eq('biz_id',bizId);
+        const staffOver=Math.max(0,(staff||[]).length-(PLAN_STAFF_LIMITS[plan]||Infinity));
+        const error=await _saUpdate(bizId,{...(c?.settings||{}),plan});
+        if(error){showToast('RLS blocked',true);return;}
+        showToast(`✅ Plan changed to ${plan.toUpperCase()}${staffOver>0?` · ⚠️ ${staffOver} staff over limit`:''}`,staffOver>0,5000);
         loadSAClients();
+      } else {
+        const error=await _saUpdate(bizId,{...(c?.settings||{}),plan});
+        if(error){showToast('RLS blocked',true);_showSASqlInstructions();}
+        else{showToast('✅ Plan updated!');loadSAClients();}
       }
     }
   });
-  // Live downgrade warning when selecting a lower plan
+  // Live: show branch picker when downgrading
   setTimeout(()=>{
     document.querySelectorAll('input[name="sa-plan"]').forEach(radio=>{
       radio.addEventListener('change',async()=>{
         const selected=radio.value;
-        const warn=document.getElementById('downgrade-warning');
-        if(!warn) return;
+        const picker=document.getElementById('downgrade-branch-picker');
+        if(!picker) return;
         if((planRank[selected]||0)<(planRank[current]||0)){
           const newLimit=PLAN_BRANCH_LIMITS[selected]||1;
-          const{data:branches}=await sb.from('branches').select('id,name,is_active').eq('business_id',bizId);
+          const{data:branches}=await sb.from('branches').select('id,name,is_active').eq('business_id',bizId).order('created_at',{ascending:true});
           const active=(branches||[]).filter(b=>b.is_active!==false);
-          const over=active.length-newLimit;
-          if(over>0){
-            warn.style.display='block';
-            warn.innerHTML=`⚠️ <strong>Downgrade warning:</strong> Customer has ${active.length} active branches. ${selected.toUpperCase()} allows ${newLimit}. <strong>${over} branch${over>1?'es':''} will be disabled</strong> (data kept, re-enable by upgrading).`;
+          if(active.length>newLimit){
+            picker.style.display='block';
+            picker.innerHTML=`
+              <div style="background:rgba(248,81,73,.08);border:1px solid rgba(248,81,73,.3);border-radius:10px;padding:14px">
+                <div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:8px">⚠️ Select which ${newLimit} branch${newLimit>1?'es':''} to KEEP active (others will be disabled):</div>
+                <div style="display:flex;flex-direction:column;gap:6px">
+                  ${active.map((b,i)=>`
+                  <label style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg3);border-radius:8px;cursor:pointer;border:1px solid var(--border)">
+                    <input type="checkbox" name="keep-branch" value="${b.id}" ${i<newLimit?'checked':''} style="accent-color:var(--accent2)"/>
+                    <span style="font-size:12px;font-weight:600">${b.name}</span>
+                    ${i<newLimit?'<span style="font-size:10px;color:var(--accent2);margin-left:auto">Will stay active</span>':'<span style="font-size:10px;color:var(--red);margin-left:auto">Will be disabled</span>'}
+                  </label>`).join('')}
+                </div>
+                <div style="font-size:11px;color:var(--muted);margin-top:8px">You must keep exactly ${newLimit} branch${newLimit>1?'es':''}.</div>
+              </div>`;
+            // Live toggle — update labels as user checks/unchecks
+            picker.querySelectorAll('input[name="keep-branch"]').forEach(cb=>{
+              cb.addEventListener('change',()=>{
+                const checked=picker.querySelectorAll('input[name="keep-branch"]:checked');
+                if(checked.length>newLimit){cb.checked=false;showToast(`Max ${newLimit} branch${newLimit>1?'es':''} allowed`,true);return;}
+                picker.querySelectorAll('label').forEach(lbl=>{
+                  const inp=lbl.querySelector('input');
+                  const tag=lbl.querySelector('span:last-child');
+                  if(tag){tag.textContent=inp.checked?'Will stay active':'Will be disabled';tag.style.color=inp.checked?'var(--accent2)':'var(--red)';}
+                });
+              });
+            });
           } else {
-            warn.style.display='none';
+            picker.style.display='none';
           }
         } else {
-          warn.style.display='none';
+          picker.style.display='none';
         }
       });
     });
