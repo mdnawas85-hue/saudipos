@@ -6944,34 +6944,94 @@ function exportSAClientsCSV(){
   a.download=`saudipos-clients-${new Date().toISOString().slice(0,10)}.csv`;a.click();
   showToast('✅ CSV exported');
 }
+const PLAN_BRANCH_LIMITS={starter:1,growth:3,enterprise:20};
+const PLAN_STAFF_LIMITS={starter:3,growth:Infinity,enterprise:Infinity};
+
+async function handlePlanDowngrade(bizId, oldPlan, newPlan){
+  const newBranchLimit=PLAN_BRANCH_LIMITS[newPlan]||1;
+  const newStaffLimit=PLAN_STAFF_LIMITS[newPlan]||3;
+  // Fetch current branches for this business
+  const{data:branches}=await sb.from('branches').select('*').eq('business_id',bizId).order('created_at',{ascending:true});
+  const activeBranches=(branches||[]).filter(b=>b.is_active!==false);
+  const branchesOver=activeBranches.length-newBranchLimit;
+  // Disable extra branches (keep newest disabled, preserve oldest)
+  if(branchesOver>0){
+    const toDisable=activeBranches.slice(newBranchLimit);
+    for(const b of toDisable){
+      await sb.from('branches').update({is_active:false}).eq('id',b.id);
+    }
+  }
+  // Fetch staff count
+  const{data:staff}=await sb.from('staff').select('id').eq('biz_id',bizId);
+  const staffCount=(staff||[]).length;
+  return {branchesOver:Math.max(0,branchesOver),staffOver:Math.max(0,staffCount-newStaffLimit)};
+}
+
 function saChangePlan(bizId){
   const c=_saClients.find(x=>x.id===bizId);
   const current=c?.settings?.plan||'growth';
   const name=c?.settings?.biz_name||c?.name||'this client';
+  const planRank={starter:0,growth:1,enterprise:2};
   openSAModal({
     title:'📋 Change Plan',
-    subtitle:`Current plan: ${current.toUpperCase()}`,
+    subtitle:`${name} · Current: ${current.toUpperCase()}`,
     body:`<div style="display:flex;flex-direction:column;gap:8px">
-      ${[['starter','99','1 branch · Up to 3 staff'],['growth','199','3 branches · Unlimited staff'],['enterprise','399','Unlimited branches & staff']].map(([p,price,desc])=>`
+      ${[['starter','99','1 branch · Up to 3 staff'],['growth','199','3 branches · Unlimited staff'],['enterprise','399','20 branches · Unlimited staff']].map(([p,price,desc])=>`
       <label style="display:flex;align-items:center;gap:12px;padding:12px 14px;background:${current===p?'rgba(0,165,80,.1)':'var(--bg3)'};border:2px solid ${current===p?'rgba(0,165,80,.5)':'var(--border)'};border-radius:10px;cursor:pointer">
         <input type="radio" name="sa-plan" value="${p}" ${current===p?'checked':''} style="accent-color:var(--accent2)"/>
         <div style="flex:1">
-          <div style="font-size:13px;font-weight:700;text-transform:uppercase">${p}</div>
+          <div style="font-size:13px;font-weight:700;text-transform:uppercase">${p}${(planRank[p]||0)<(planRank[current]||0)?'  <span style="font-size:10px;color:var(--amber);background:rgba(210,153,34,.15);padding:2px 6px;border-radius:6px">DOWNGRADE</span>':''}</div>
           <div style="font-size:11px;color:var(--muted)">${desc}</div>
         </div>
         <div style="font-size:14px;font-weight:800;color:var(--accent2)">${price} SAR/mo</div>
       </label>`).join('')}
-    </div>`,
+    </div>
+    <div id="downgrade-warning" style="display:none;margin-top:12px;padding:12px;background:rgba(248,81,73,.08);border:1px solid rgba(248,81,73,.3);border-radius:10px;font-size:12px;color:var(--red)"></div>`,
     confirmLabel:'💾 Save Plan',
     confirmColor:'var(--accent2)',
     onConfirm:async()=>{
       const plan=document.querySelector('input[name="sa-plan"]:checked')?.value;
       if(!plan){showToast('Select a plan',true);return false;}
+      const isDowngrade=(planRank[plan]||0)<(planRank[current]||0);
+      // Handle downgrade: disable extra branches, warn about staff
+      let downgradeMsg='';
+      if(isDowngrade){
+        const result=await handlePlanDowngrade(bizId,current,plan);
+        if(result.branchesOver>0) downgradeMsg+=`⚠️ ${result.branchesOver} branch${result.branchesOver>1?'es':''} disabled (exceed new limit). `;
+        if(result.staffOver>0) downgradeMsg+=`⚠️ ${result.staffOver} staff over new limit — they remain but no new staff can be added. `;
+      }
       const error=await _saUpdate(bizId,{...(c?.settings||{}),plan});
       if(error){showToast('RLS blocked — run SA SQL in Supabase',true);_showSASqlInstructions();}
-      else{showToast('✅ Plan updated!');loadSAClients();}
+      else{
+        showToast(downgradeMsg?`✅ Plan changed. ${downgradeMsg}`:'✅ Plan updated!',!!downgradeMsg,5000);
+        loadSAClients();
+      }
     }
   });
+  // Live downgrade warning when selecting a lower plan
+  setTimeout(()=>{
+    document.querySelectorAll('input[name="sa-plan"]').forEach(radio=>{
+      radio.addEventListener('change',async()=>{
+        const selected=radio.value;
+        const warn=document.getElementById('downgrade-warning');
+        if(!warn) return;
+        if((planRank[selected]||0)<(planRank[current]||0)){
+          const newLimit=PLAN_BRANCH_LIMITS[selected]||1;
+          const{data:branches}=await sb.from('branches').select('id,name,is_active').eq('business_id',bizId);
+          const active=(branches||[]).filter(b=>b.is_active!==false);
+          const over=active.length-newLimit;
+          if(over>0){
+            warn.style.display='block';
+            warn.innerHTML=`⚠️ <strong>Downgrade warning:</strong> Customer has ${active.length} active branches. ${selected.toUpperCase()} allows ${newLimit}. <strong>${over} branch${over>1?'es':''} will be disabled</strong> (data kept, re-enable by upgrading).`;
+          } else {
+            warn.style.display='none';
+          }
+        } else {
+          warn.style.display='none';
+        }
+      });
+    });
+  },100);
 }
 
 // ── BRANCH REPORTS ────────────────────────────────────────────────────────────
