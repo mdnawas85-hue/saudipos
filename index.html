@@ -6552,6 +6552,15 @@ async function loadSAClients(){
     emailData.forEach(r=>{emailMap[r.owner_id]=r.email;});
     clients.forEach(c=>{c.owner_email=emailMap[c.owner_id]||null;});
   }
+  // Fetch branches from branches table for all businesses
+  const bizIds=clients.map(c=>c.id);
+  const{data:allBranches}=await sb.from('branches').select('id,business_id,name,is_active').in('business_id',bizIds);
+  const branchMap={};
+  (allBranches||[]).forEach(b=>{
+    if(!branchMap[b.business_id]) branchMap[b.business_id]=[];
+    branchMap[b.business_id].push(b);
+  });
+  clients.forEach(c=>{c._branches=branchMap[c.id]||[];});
   _saClients=clients;
   // If only 1 result (own business), RLS is blocking — show setup instructions
   if(_saClients.length<=1&&!rpcData){
@@ -6651,7 +6660,7 @@ function renderSAClients(){
     const statusBg=status==='active'?'rgba(0,165,80,.1)':daysLeft!=null&&daysLeft<=0?'rgba(248,81,73,.1)':'rgba(210,153,34,.1)';
     const statusBorder=status==='active'?'rgba(0,165,80,.3)':daysLeft!=null&&daysLeft<=0?'rgba(248,81,73,.3)':'rgba(210,153,34,.3)';
     const statusLabel=status==='active'?'✅ Active':daysLeft!=null&&daysLeft<=0?'🔴 Trial Expired':`⏰ Trial · ${daysLeft}d left`;
-    const branchList=s.branches||[];
+    const branchList=c._branches&&c._branches.length>0?c._branches:(s.branches||[]);
     const branchCount=branchList.length||1;
     const branchNames=branchList.length>0?branchList.map(b=>b.name).join(', '):'Main Branch';
     const created=new Date(c.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
