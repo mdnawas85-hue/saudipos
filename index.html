@@ -6552,9 +6552,8 @@ async function loadSAClients(){
     emailData.forEach(r=>{emailMap[r.owner_id]=r.email;});
     clients.forEach(c=>{c.owner_email=emailMap[c.owner_id]||null;});
   }
-  // Fetch branches from branches table for all businesses
-  const bizIds=clients.map(c=>c.id);
-  const{data:allBranches}=await sb.from('branches').select('id,business_id,name,is_active').in('business_id',bizIds);
+  // Fetch branches via SA RPC (bypasses RLS)
+  const{data:allBranches}=await sb.rpc('sa_get_all_branches');
   const branchMap={};
   (allBranches||[]).forEach(b=>{
     if(!branchMap[b.business_id]) branchMap[b.business_id]=[];
