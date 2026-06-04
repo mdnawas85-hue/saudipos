@@ -5405,9 +5405,14 @@ async function saveAdminPin(){
 }
 async function saveSetting(key,value){
   _settings[key]=value;
-  // Always update the PARENT business record (not the branch)
   const targetId=_businessId||_bizId;
-  if(targetId) await sb.from('businesses').update({settings:_settings}).eq('id',targetId);
+  if(targetId){
+    // Fetch fresh settings first to avoid overwriting SA changes (plan/status)
+    const{data:fresh}=await sb.from('businesses').select('settings').eq('id',targetId).single();
+    const merged={...(fresh?.settings||{}),..._settings,[key]:value};
+    await sb.from('businesses').update({settings:merged}).eq('id',targetId);
+    _settings=merged;
+  }
   if(key==='vat_rate') updateTotals();
   if(key==='biz_name'){
     const name=value||'My Business';
@@ -7513,11 +7518,13 @@ async function saveITASettings(){
   const footer=document.getElementById('ita-set-footer').value.trim();
   if(!bizName){showToast('Business name required',true);return;}
   if(pin&&!/^\d{4}$/.test(pin)){showToast('PIN must be 4 digits',true);return;}
-  _settings.biz_name=bizName;_settings.currency=currency;_settings.vat_rate=vat;
-  if(pin) _settings.admin_pin=pin;
-  _settings.receipt_footer=footer;
-  const{error}=await sb.from('businesses').update({settings:_settings}).eq('id',_businessId);
+  // Fetch fresh settings first to avoid overwriting SA changes (plan/status)
+  const{data:fresh}=await sb.from('businesses').select('settings').eq('id',_businessId).single();
+  const merged={...(fresh?.settings||{}),..._settings,biz_name:bizName,currency,vat_rate:vat,receipt_footer:footer};
+  if(pin) merged.admin_pin=pin;
+  const{error}=await sb.from('businesses').update({settings:merged}).eq('id',_businessId);
   if(error){showToast('Save failed: '+error.message,true);return;}
+  _settings=merged;
   showToast('✅ Settings saved');
 }
 
