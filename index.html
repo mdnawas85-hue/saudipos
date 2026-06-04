@@ -8057,7 +8057,7 @@ function applyRoleNav(){
   }
   // Apply visibility to all nav tabs + plan lock badges
   const lim=getPlanLimits();
-  const planLocked={promos:!lim.hasPromotions};
+  const planLocked={promos:!lim.hasPromotions,};
   document.querySelectorAll('.nav-tab').forEach(btn=>{
     const screen=btn.dataset.screen;
     if(!screen) return;
