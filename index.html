@@ -65,7 +65,7 @@ input,select,textarea{font-family:inherit;font-size:14px}
 .nav-tab.active{background:rgba(0,165,80,.15);color:var(--accent2)}
 .nav-tab:hover:not(.active){background:var(--bg3);color:var(--text)}
 .topbar-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
-.mode-badge{padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;cursor:pointer}
+.mode-badge{padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;cursor:default}
 .mode-restaurant{background:rgba(0,165,80,.15);color:var(--accent2);border:1px solid rgba(0,165,80,.3)}
 .mode-retail{background:rgba(88,166,255,.15);color:var(--blue);border:1px solid rgba(88,166,255,.3)}
 .lang-btn{padding:5px 10px;border-radius:7px;font-size:11px;font-weight:600;border:1px solid var(--border);background:var(--bg3);color:var(--muted)}
@@ -618,100 +618,214 @@ input:checked+.toggle-slider:before{transform:translateX(16px);background:#fff}
 </div>
 
 <!-- AUTH -->
+<style>
+#lp{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+#lp *{box-sizing:border-box}
+.lp-nav{position:sticky;top:0;z-index:100;background:rgba(10,14,20,.92);backdrop-filter:blur(16px);border-bottom:1px solid rgba(255,255,255,.07);padding:0 24px;height:64px;display:flex;align-items:center;justify-content:space-between}
+.lp-logo{font-size:24px;font-weight:900;color:#fff;letter-spacing:-.5px}
+.lp-logo span{color:#00a550}
+.lp-nav-btns{display:flex;gap:10px;align-items:center}
+.lp-btn-ghost{padding:8px 20px;border-radius:8px;border:1px solid rgba(255,255,255,.15);background:transparent;color:#fff;font-size:13px;font-weight:600;cursor:pointer;transition:.2s}
+.lp-btn-ghost:hover{background:rgba(255,255,255,.08)}
+.lp-btn-primary{padding:9px 22px;border-radius:8px;border:none;background:#00a550;color:#fff;font-size:13px;font-weight:700;cursor:pointer;transition:.2s}
+.lp-btn-primary:hover{background:#00c460;transform:translateY(-1px)}
+.lp-hero{text-align:center;padding:90px 20px 70px;position:relative;overflow:hidden}
+.lp-hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(0,165,80,.18),transparent);pointer-events:none}
+.lp-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 16px;border-radius:20px;background:rgba(0,165,80,.1);border:1px solid rgba(0,165,80,.25);color:#00c460;font-size:12px;font-weight:700;margin-bottom:28px}
+.lp-h1{font-size:clamp(36px,6vw,64px);font-weight:900;line-height:1.08;color:#fff;letter-spacing:-1.5px;margin:0 0 10px}
+.lp-h1 .green{background:linear-gradient(135deg,#00a550,#00d4aa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.lp-h1 .white{color:#fff}
+.lp-sub{font-size:17px;color:rgba(255,255,255,.55);max-width:520px;margin:16px auto 36px;line-height:1.65}
+.lp-types{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:40px}
+.lp-type-pill{cursor:pointer;padding:7px 16px;border-radius:20px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.75);font-size:13px;font-weight:600;transition:.2s}
+.lp-type-pill:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2)}
+.lp-hero-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:18px}
+.lp-cta-main{padding:16px 40px;border-radius:12px;border:none;background:#00a550;color:#fff;font-size:16px;font-weight:800;cursor:pointer;box-shadow:0 8px 32px rgba(0,165,80,.35);transition:.2s}
+.lp-cta-main:hover{background:#00c460;transform:translateY(-2px);box-shadow:0 12px 40px rgba(0,165,80,.45)}
+.lp-cta-sec{padding:16px 36px;border-radius:12px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:#fff;font-size:16px;font-weight:700;cursor:pointer;transition:.2s}
+.lp-cta-sec:hover{background:rgba(255,255,255,.1)}
+.lp-trial-note{font-size:12px;color:rgba(255,255,255,.35)}
+.lp-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1px;background:rgba(255,255,255,.06);border-top:1px solid rgba(255,255,255,.06);border-bottom:1px solid rgba(255,255,255,.06)}
+.lp-stat{padding:24px 20px;text-align:center;background:#0a0e14}
+.lp-stat-num{font-size:30px;font-weight:900;color:#00a550}
+.lp-stat-label{font-size:12px;color:rgba(255,255,255,.4);margin-top:4px;font-weight:500}
+.lp-section{max-width:1000px;margin:0 auto;padding:64px 24px}
+.lp-section-label{font-size:11px;font-weight:700;color:#00a550;letter-spacing:.12em;text-transform:uppercase;margin-bottom:10px}
+.lp-section-title{font-size:clamp(24px,3.5vw,36px);font-weight:900;color:#fff;letter-spacing:-.5px;margin:0 0 10px}
+.lp-section-sub{font-size:15px;color:rgba(255,255,255,.45);margin-bottom:44px}
+.lp-features{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:16px}
+.lp-feat{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);border-radius:16px;padding:28px;transition:.2s}
+.lp-feat:hover{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.12);transform:translateY(-2px)}
+.lp-feat-icon{font-size:36px;margin-bottom:16px}
+.lp-feat-title{font-size:16px;font-weight:700;color:#fff;margin-bottom:8px}
+.lp-feat-desc{font-size:13px;color:rgba(255,255,255,.45);line-height:1.6}
+.lp-biz-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px}
+.lp-biz-card{border-radius:16px;padding:28px 20px;text-align:center;border:1.5px solid;transition:.2s;cursor:default}
+.lp-biz-card:hover{transform:translateY(-3px)}
+.lp-biz-emoji{font-size:40px;margin-bottom:14px}
+.lp-biz-name{font-size:15px;font-weight:800;color:#fff;margin-bottom:6px}
+.lp-biz-desc{font-size:12px;line-height:1.5}
+.lp-pricing{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+.lp-plan{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:30px}
+.lp-plan.popular{background:linear-gradient(135deg,rgba(0,165,80,.15),rgba(0,100,50,.1));border-color:rgba(0,165,80,.5);position:relative}
+.lp-plan.popular::before{content:'⭐ MOST POPULAR';position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#00a550;color:#fff;font-size:10px;font-weight:800;padding:4px 16px;border-radius:20px;white-space:nowrap}
+.lp-plan.enterprise{border-color:rgba(88,166,255,.35)}
+.lp-plan-name{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;margin-bottom:12px}
+.lp-plan-price{font-size:42px;font-weight:900;color:#fff;line-height:1;margin-bottom:4px}
+.lp-plan-price span{font-size:14px;color:rgba(255,255,255,.4);font-weight:400}
+.lp-plan-desc{font-size:12px;color:rgba(255,255,255,.35);margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid rgba(255,255,255,.08)}
+.lp-plan-feat{font-size:13px;color:rgba(255,255,255,.65);padding:7px 0;border-bottom:1px solid rgba(255,255,255,.05);display:flex;align-items:center;gap:8px}
+.lp-plan-feat:last-child{border-bottom:none}
+.lp-plan-feat::before{content:'✓';color:#00a550;font-weight:700;flex-shrink:0}
+.lp-footer{border-top:1px solid rgba(255,255,255,.07);padding:28px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.lp-footer-logo{font-size:18px;font-weight:900;color:#fff}
+.lp-footer-logo span{color:#00a550}
+.lp-footer-copy{font-size:12px;color:rgba(255,255,255,.25)}
+@media(max-width:600px){.lp-h1{letter-spacing:-.5px}.lp-hero{padding:60px 16px 50px}.lp-section{padding:48px 16px}}
+</style>
+
 <div id="auth-screen">
   <!-- LANDING PAGE -->
-  <div id="landing-page" style="width:100%;height:100%;overflow-y:auto;background:var(--bg)">
-    <!-- Nav -->
-    <div style="position:sticky;top:0;background:rgba(13,17,23,.95);backdrop-filter:blur(10px);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;z-index:10">
-      <div style="font-size:22px;font-weight:900">Saudi<span style="color:var(--accent2)">POS</span></div>
-      <div style="display:flex;gap:10px">
-        <button onclick="showLoginForm()" style="padding:8px 18px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--text);font-size:13px;font-weight:600;cursor:pointer">Sign In</button>
-        <button onclick="showSignupForm()" style="padding:8px 18px;border-radius:8px;border:none;background:var(--accent2);color:#fff;font-size:13px;font-weight:700;cursor:pointer">Start Free Trial</button>
-      </div>
-    </div>
-    <!-- Hero -->
-    <div style="text-align:center;padding:60px 20px 40px;max-width:700px;margin:0 auto">
-      <div style="display:inline-block;padding:4px 14px;border-radius:20px;background:rgba(0,165,80,.15);border:1px solid rgba(0,165,80,.3);color:var(--accent2);font-size:12px;font-weight:700;margin-bottom:20px">🎉 14-Day Free Trial — No credit card required</div>
-      <h1 style="font-size:clamp(28px,5vw,52px);font-weight:900;line-height:1.15;margin-bottom:16px">The POS built for<br><span style="color:var(--accent2)">Saudi Restaurants</span></h1>
-      <p style="font-size:15px;color:var(--muted);max-width:500px;margin:0 auto 32px">Multi-branch management, kitchen display, customer loyalty, inventory tracking — all in one place.</p>
-      <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-        <button onclick="showSignupForm()" style="padding:14px 32px;border-radius:12px;border:none;background:var(--accent2);color:#fff;font-size:16px;font-weight:800;cursor:pointer">🚀 Start Free Trial</button>
-        <button onclick="showLoginForm()" style="padding:14px 32px;border-radius:12px;border:1px solid var(--border);background:var(--bg2);color:var(--text);font-size:16px;font-weight:700;cursor:pointer">Sign In →</button>
-      </div>
-    </div>
-    <!-- Features -->
-    <div style="max-width:900px;margin:0 auto;padding:0 20px 40px;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px">
-      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px">
-        <div style="font-size:28px;margin-bottom:10px">🧾</div>
-        <div style="font-size:14px;font-weight:700;margin-bottom:6px">Smart POS</div>
-        <div style="font-size:12px;color:var(--muted)">Fast order taking, split bills, multiple payment methods</div>
-      </div>
-      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px">
-        <div style="font-size:28px;margin-bottom:10px">🍳</div>
-        <div style="font-size:14px;font-weight:700;margin-bottom:6px">Kitchen Display</div>
-        <div style="font-size:12px;color:var(--muted)">Real-time orders sent to kitchen screen automatically</div>
-      </div>
-      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px">
-        <div style="font-size:28px;margin-bottom:10px">🏪</div>
-        <div style="font-size:14px;font-weight:700;margin-bottom:6px">Multi-Branch</div>
-        <div style="font-size:12px;color:var(--muted)">Manage all your locations from one account</div>
-      </div>
-      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px">
-        <div style="font-size:28px;margin-bottom:10px">📊</div>
-        <div style="font-size:14px;font-weight:700;margin-bottom:6px">Reports &amp; Analytics</div>
-        <div style="font-size:12px;color:var(--muted)">Sales reports, top items, staff performance</div>
-      </div>
-      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px">
-        <div style="font-size:28px;margin-bottom:10px">🎯</div>
-        <div style="font-size:14px;font-weight:700;margin-bottom:6px">Promotions</div>
-        <div style="font-size:12px;color:var(--muted)">BOGO, discounts, happy hour, Buy X Get 1 Free</div>
-      </div>
-      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px">
-        <div style="font-size:28px;margin-bottom:10px">👥</div>
-        <div style="font-size:14px;font-weight:700;margin-bottom:6px">Customer Loyalty</div>
-        <div style="font-size:12px;color:var(--muted)">Points system, purchase history, SMS receipts</div>
-      </div>
-    </div>
-    <!-- Pricing -->
-    <div style="max-width:900px;margin:0 auto;padding:0 20px 60px;text-align:center">
-      <div style="font-size:24px;font-weight:800;margin-bottom:8px">Simple Pricing</div>
-      <div style="font-size:13px;color:var(--muted);margin-bottom:32px">Start free. Upgrade when you're ready.</div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px">
-        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:24px;text-align:left">
-          <div style="font-size:13px;font-weight:700;color:var(--muted);margin-bottom:8px">STARTER</div>
-          <div style="font-size:32px;font-weight:900;margin-bottom:4px">99 <span style="font-size:14px;color:var(--muted)">SAR/mo</span></div>
-          <div style="font-size:11px;color:var(--muted);margin-bottom:16px">1 branch · Up to 3 staff</div>
-          <div style="font-size:12px;padding:4px 0;color:var(--text)">✅ POS &amp; Orders</div>
-          <div style="font-size:12px;padding:4px 0;color:var(--text)">✅ Kitchen Display</div>
-          <div style="font-size:12px;padding:4px 0;color:var(--text)">✅ Basic Reports</div>
-          <div style="font-size:12px;padding:4px 0;color:var(--text)">✅ Email Support</div>
-        </div>
-        <div style="background:linear-gradient(135deg,rgba(0,165,80,.15),rgba(0,108,53,.1));border:2px solid rgba(0,165,80,.5);border-radius:16px;padding:24px;text-align:left;position:relative">
-          <div style="position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--accent2);color:#fff;font-size:10px;font-weight:800;padding:3px 12px;border-radius:20px">MOST POPULAR</div>
-          <div style="font-size:13px;font-weight:700;color:var(--accent2);margin-bottom:8px">GROWTH</div>
-          <div style="font-size:32px;font-weight:900;margin-bottom:4px">199 <span style="font-size:14px;color:var(--muted)">SAR/mo</span></div>
-          <div style="font-size:11px;color:var(--muted);margin-bottom:16px">3 branches · Unlimited staff</div>
-          <div style="font-size:12px;padding:4px 0;color:var(--text)">✅ Everything in Starter</div>
-          <div style="font-size:12px;padding:4px 0;color:var(--text)">✅ Multi-Branch</div>
-          <div style="font-size:12px;padding:4px 0;color:var(--text)">✅ Customer Loyalty</div>
-          <div style="font-size:12px;padding:4px 0;color:var(--text)">✅ Promotions &amp; Promos</div>
-          <div style="font-size:12px;padding:4px 0;color:var(--text)">✅ Priority Support</div>
-        </div>
-        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:24px;text-align:left">
-          <div style="font-size:13px;font-weight:700;color:#58a6ff;margin-bottom:8px">ENTERPRISE</div>
-          <div style="font-size:32px;font-weight:900;margin-bottom:4px">399 <span style="font-size:14px;color:var(--muted)">SAR/mo</span></div>
-          <div style="font-size:11px;color:var(--muted);margin-bottom:16px">Unlimited branches & staff</div>
-          <div style="font-size:12px;padding:4px 0;color:var(--text)">✅ Everything in Growth</div>
-          <div style="font-size:12px;padding:4px 0;color:var(--text)">✅ Unlimited Branches</div>
-          <div style="font-size:12px;padding:4px 0;color:var(--text)">✅ Owner Dashboard</div>
-          <div style="font-size:12px;padding:4px 0;color:var(--text)">✅ Advanced Reports</div>
-          <div style="font-size:12px;padding:4px 0;color:var(--text)">✅ Dedicated Support</div>
-        </div>
-      </div>
-      <div style="margin-top:24px;font-size:13px;color:var(--muted)">All plans include a <strong style="color:var(--text)">14-day free trial</strong>. No credit card required to start.</div>
-    </div>
-  </div>
+  <div id="landing-page" style="width:100%;height:100%;overflow-y:auto;background:#0a0e14">
+  <div id="lp">
 
+    <!-- NAV -->
+    <nav class="lp-nav">
+      <div class="lp-logo">Saudi<span>POS</span></div>
+      <div class="lp-nav-btns">
+        <button class="lp-btn-ghost" onclick="showLoginForm()">Sign In</button>
+        <button class="lp-btn-primary" onclick="showSignupForm()">Start Free Trial</button>
+      </div>
+    </nav>
+
+    <!-- HERO -->
+    <div class="lp-hero">
+      <div class="lp-badge">✨ 14-Day Free Trial · No Credit Card Required</div>
+      <h1 class="lp-h1">
+        <span class="white">One Platform for</span><br>
+        <span class="green">Every Saudi Business</span>
+      </h1>
+      <p class="lp-sub">SaudiPOS gives restaurants, retail shops, coffee shops and bakeries everything they need — smart POS, multi-branch control, real-time analytics, and staff management.</p>
+      <div class="lp-types">
+        <span class="lp-type-pill" onclick="signupAs('restaurant')">🍔 Restaurants</span>
+        <span class="lp-type-pill" onclick="signupAs('retail')">🛒 Retail Shops</span>
+        <span class="lp-type-pill" onclick="signupAs('coffee')">☕ Coffee Shops</span>
+        <span class="lp-type-pill" onclick="signupAs('bakery')">🥐 Bakeries</span>
+        <span class="lp-type-pill" onclick="showSignupForm()">🏪 &amp; More</span>
+      </div>
+      <div class="lp-hero-btns">
+        <button class="lp-cta-main" onclick="showSignupForm()">🚀 Start 14-Day Free Trial</button>
+        <button class="lp-cta-sec" onclick="showLoginForm()">Sign In →</button>
+      </div>
+      <div class="lp-trial-note">✅ No credit card required &nbsp;·&nbsp; Cancel anytime &nbsp;·&nbsp; Setup in minutes</div>
+    </div>
+
+    <!-- STATS -->
+    <div class="lp-stats">
+      <div class="lp-stat"><div class="lp-stat-num">4+</div><div class="lp-stat-label">Business Types</div></div>
+      <div class="lp-stat"><div class="lp-stat-num">∞</div><div class="lp-stat-label">Branches per Account</div></div>
+      <div class="lp-stat"><div class="lp-stat-num">15%</div><div class="lp-stat-label">VAT Ready</div></div>
+      <div class="lp-stat"><div class="lp-stat-num">14</div><div class="lp-stat-label">Day Free Trial</div></div>
+      <div class="lp-stat"><div class="lp-stat-num">24/7</div><div class="lp-stat-label">Always Online</div></div>
+    </div>
+
+    <!-- FEATURES -->
+    <div class="lp-section" style="text-align:center">
+      <div class="lp-section-label">Platform Features</div>
+      <div class="lp-section-title">Everything Your Business Needs</div>
+      <div class="lp-section-sub">One subscription. All tools included. Works on any device.</div>
+      <div class="lp-features" style="text-align:left">
+        <div class="lp-feat"><div class="lp-feat-icon">🧾</div><div class="lp-feat-title">Smart POS</div><div class="lp-feat-desc">Lightning-fast checkout, split bills, hold orders, multiple payment methods. Works on tablet, phone, or desktop.</div></div>
+        <div class="lp-feat"><div class="lp-feat-icon">🏪</div><div class="lp-feat-title">Multi-Branch Management</div><div class="lp-feat-desc">Run all your locations from one account. Each branch has its own staff, orders and menu visibility.</div></div>
+        <div class="lp-feat"><div class="lp-feat-icon">📊</div><div class="lp-feat-title">Owner Dashboard</div><div class="lp-feat-desc">Real-time revenue and order data across all branches. Daily, weekly, monthly reports at a glance.</div></div>
+        <div class="lp-feat"><div class="lp-feat-icon">🍳</div><div class="lp-feat-title">Kitchen Display System</div><div class="lp-feat-desc">Orders go directly to the kitchen screen. No paper tickets. Real-time status updates for your team.</div></div>
+        <div class="lp-feat"><div class="lp-feat-icon">📦</div><div class="lp-feat-title">Inventory &amp; Barcode</div><div class="lp-feat-desc">Track stock levels, get low-stock alerts, scan barcodes to add items instantly. Full inventory control.</div></div>
+        <div class="lp-feat"><div class="lp-feat-icon">👥</div><div class="lp-feat-title">Staff &amp; Loyalty</div><div class="lp-feat-desc">PIN-based staff login, role permissions, customer loyalty points, and full purchase history.</div></div>
+        <div class="lp-feat"><div class="lp-feat-icon">🎯</div><div class="lp-feat-title">Promotions &amp; Discounts</div><div class="lp-feat-desc">BOGO, happy hour, Buy X Get 1 Free, percentage and fixed discounts. Drive more sales effortlessly.</div></div>
+        <div class="lp-feat"><div class="lp-feat-icon">🖥</div><div class="lp-feat-title">Customer Display</div><div class="lp-feat-desc">Customer-facing screen shows order total and items in real time. Professional checkout experience.</div></div>
+        <div class="lp-feat"><div class="lp-feat-icon">⚙️</div><div class="lp-feat-title">IT Admin Portal</div><div class="lp-feat-desc">PIN-protected management portal. Add branches, manage menu visibility, configure settings — without entering a branch.</div></div>
+      </div>
+    </div>
+
+    <!-- BUSINESS TYPES -->
+    <div style="background:rgba(255,255,255,.025);border-top:1px solid rgba(255,255,255,.06);border-bottom:1px solid rgba(255,255,255,.06)">
+      <div class="lp-section" style="text-align:center">
+        <div class="lp-section-label">Who It's For</div>
+        <div class="lp-section-title">Built for Every Business Type</div>
+        <div class="lp-section-sub" id="landing-sub">Select your type during signup — sample menu loads automatically</div>
+        <div class="lp-biz-grid">
+          <div class="lp-biz-card" style="background:rgba(0,165,80,.06);border-color:rgba(0,165,80,.25);cursor:pointer" onclick="signupAs('restaurant')">
+            <div class="lp-biz-emoji">🍔</div>
+            <div class="lp-biz-name">Restaurant &amp; Cafe</div>
+            <div class="lp-biz-desc" style="color:rgba(0,200,100,.6)">Tables · Kitchen Display · Dine-in &amp; Delivery · Combos</div>
+          </div>
+          <div class="lp-biz-card" style="background:rgba(88,166,255,.06);border-color:rgba(88,166,255,.25);cursor:pointer" onclick="signupAs('retail')">
+            <div class="lp-biz-emoji">🛒</div>
+            <div class="lp-biz-name">Retail Shop</div>
+            <div class="lp-biz-desc" style="color:rgba(88,166,255,.7)">Barcode Scanner · SKU · Stock Tracking · Low Stock Alerts</div>
+          </div>
+          <div class="lp-biz-card" style="background:rgba(210,153,34,.06);border-color:rgba(210,153,34,.25);cursor:pointer" onclick="signupAs('coffee')">
+            <div class="lp-biz-emoji">☕</div>
+            <div class="lp-biz-name">Coffee Shop</div>
+            <div class="lp-biz-desc" style="color:rgba(210,153,34,.7)">Fast POS · Loyalty Rewards · Hot &amp; Cold Menu · Happy Hour</div>
+          </div>
+          <div class="lp-biz-card" style="background:rgba(248,81,73,.06);border-color:rgba(248,81,73,.25);cursor:pointer" onclick="signupAs('bakery')">
+            <div class="lp-biz-emoji">🥐</div>
+            <div class="lp-biz-name">Bakery</div>
+            <div class="lp-biz-desc" style="color:rgba(248,81,73,.7)">Daily Stock · Custom Orders · Customer Loyalty · Reports</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRICING -->
+    <div class="lp-section" style="text-align:center">
+      <div class="lp-section-label">Pricing</div>
+      <div class="lp-section-title">Simple, Transparent Plans</div>
+      <div class="lp-section-sub">Start free for 14 days. No credit card required.</div>
+      <div class="lp-pricing" style="text-align:left;margin-bottom:32px">
+        <div class="lp-plan">
+          <div class="lp-plan-name" style="color:rgba(255,255,255,.5)">Starter</div>
+          <div class="lp-plan-price">99 <span>SAR/mo</span></div>
+          <div class="lp-plan-desc">1 branch · Up to 3 staff</div>
+          <div class="lp-plan-feat">POS &amp; Orders</div>
+          <div class="lp-plan-feat">Kitchen / Barcode Scanner</div>
+          <div class="lp-plan-feat">Basic Reports</div>
+          <div class="lp-plan-feat">Email Support</div>
+        </div>
+        <div class="lp-plan popular">
+          <div class="lp-plan-name" style="color:#00a550">Growth</div>
+          <div class="lp-plan-price">199 <span>SAR/mo</span></div>
+          <div class="lp-plan-desc">3 branches · Unlimited staff</div>
+          <div class="lp-plan-feat">Everything in Starter</div>
+          <div class="lp-plan-feat">Multi-Branch</div>
+          <div class="lp-plan-feat">Customer Loyalty</div>
+          <div class="lp-plan-feat">Promotions &amp; Discounts</div>
+          <div class="lp-plan-feat">Priority Support</div>
+        </div>
+        <div class="lp-plan enterprise">
+          <div class="lp-plan-name" style="color:#58a6ff">Enterprise</div>
+          <div class="lp-plan-price">399 <span>SAR/mo</span></div>
+          <div class="lp-plan-desc">Unlimited branches &amp; staff</div>
+          <div class="lp-plan-feat">Everything in Growth</div>
+          <div class="lp-plan-feat">Unlimited Branches</div>
+          <div class="lp-plan-feat">Owner Dashboard</div>
+          <div class="lp-plan-feat">Advanced Reports</div>
+          <div class="lp-plan-feat">Dedicated Support</div>
+        </div>
+      </div>
+      <button class="lp-cta-main" onclick="showSignupForm()">🚀 Start Your Free Trial</button>
+      <div class="lp-trial-note" style="margin-top:14px">All plans include a 14-day free trial · No credit card required · Cancel anytime</div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="lp-footer">
+      <div class="lp-footer-logo">Saudi<span>POS</span> <span style="font-size:11px;color:rgba(255,255,255,.2);font-weight:400;margin-left:6px">by SaudiPOS Co.</span></div>
+      <div class="lp-footer-copy">© 2026 SaudiPOS · saudipos.biz · All rights reserved</div>
+    </div>
+
+  </div>
+  </div>
   <!-- LOGIN FORM -->
   <div id="login-form-panel" style="display:none;position:fixed;inset:0;background:var(--bg);align-items:center;justify-content:center;z-index:20">
     <div class="auth-box" style="max-width:400px">
@@ -739,7 +853,7 @@ input:checked+.toggle-slider:before{transform:translateX(16px);background:#fff}
       <input class="auth-input" id="su-phone" type="tel" placeholder="Phone number (e.g. 05xxxxxxxx)"/>
       <input class="auth-input" id="su-email" type="email" placeholder="Email address *" autocomplete="email"/>
       <input class="auth-input" id="su-pass" type="password" placeholder="Password (min 6 chars) *"/>
-      <select class="auth-input" id="su-type">
+      <select class="auth-input" id="su-type" onchange="updateLandingForType(this.value)">
         <option value="restaurant">🍔 Restaurant / Cafe</option>
         <option value="retail">🛒 Retail Shop</option>
         <option value="coffee">☕ Coffee Shop</option>
@@ -918,6 +1032,7 @@ input:checked+.toggle-slider:before{transform:translateX(16px);background:#fff}
         <option value="month" selected>This Month</option>
         <option value="all">All Time</option>
       </select>
+      <button onclick="clearAllBranchOrders()" style="padding:7px 16px;border-radius:8px;border:1px solid rgba(248,81,73,.4);background:rgba(248,81,73,.08);color:var(--red);font-size:12px;font-weight:600;cursor:pointer">🗑 Clear All Orders</button>
       <button onclick="closeOwnerDashboard()" style="padding:7px 16px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:12px;font-weight:600;cursor:pointer">← Back</button>
     </div>
   </div>
@@ -983,11 +1098,12 @@ input:checked+.toggle-slider:before{transform:translateX(16px);background:#fff}
       <span style="font-size:18px;font-weight:900">Saudi<span style="color:var(--accent2)">POS</span></span>
       <span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:rgba(88,166,255,.15);color:#58a6ff;border:1px solid rgba(88,166,255,.3)">⚙️ IT Admin</span>
     </div>
-    <button onclick="closeITAdminPortal()" style="background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;padding:6px 12px;border-radius:8px;border:1px solid var(--border)">← Back to Branches</button>
+    <div style="display:flex;gap:8px;align-items:center"><button onclick="runSystemTests()" id="test-runner-btn" style="display:none;padding:6px 14px;border-radius:8px;border:1px solid rgba(88,166,255,.4);background:rgba(88,166,255,.08);color:#58a6ff;font-size:12px;font-weight:700;cursor:pointer">🧪 Run Tests</button><button onclick="closeITAdminPortal()" style="padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:12px;font-weight:600;cursor:pointer">← Back to Branches</button></div>
   </div>
   <!-- Tab bar -->
   <div style="display:flex;gap:4px;padding:12px 16px;background:var(--bg2);border-bottom:1px solid var(--border);overflow-x:auto;flex-shrink:0">
     <button class="ita-tab active" id="ita-tab-branches" onclick="setITATab('branches')" style="padding:8px 16px;border-radius:10px;border:none;background:var(--accent2);color:#fff;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">🏪 Branches</button>
+    <button class="ita-tab" id="ita-tab-products" onclick="setITATab('products')" style="padding:8px 16px;border-radius:10px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">📦 Products</button>
     <button class="ita-tab" id="ita-tab-visibility" onclick="setITATab('visibility')" style="padding:8px 16px;border-radius:10px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">👁 Menu Visibility</button>
     <button class="ita-tab" id="ita-tab-dashboard" onclick="setITATab('dashboard')" style="padding:8px 16px;border-radius:10px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">📊 Owner Dashboard</button>
     <button class="ita-tab" id="ita-tab-settings" onclick="setITATab('settings')" style="padding:8px 16px;border-radius:10px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap">⚙️ Settings</button>
@@ -1002,6 +1118,29 @@ input:checked+.toggle-slider:before{transform:translateX(16px);background:#fff}
         <button onclick="openAddBranchModal()" class="btn btn-primary">+ Add Branch</button>
       </div>
       <div id="ita-branch-list" style="display:flex;flex-direction:column;gap:10px"></div>
+    </div>
+    <!-- Products tab -->
+    <div id="ita-products" style="display:none;padding:20px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+        <div style="font-size:15px;font-weight:800">📦 Products & Categories</div>
+        <div style="display:flex;gap:8px">
+          <button onclick="itaOpenCatModal()" style="padding:8px 16px;border-radius:10px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:12px;font-weight:700;cursor:pointer">+ Category</button>
+          <button onclick="itaOpenProductModal()" class="btn btn-primary">+ Product</button>
+        </div>
+      </div>
+      <!-- Search & Branch filter row -->
+      <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap">
+        <input id="ita-search" class="form-input" placeholder="🔍 Search by name, Arabic name, barcode…" oninput="_renderITAProductList()" style="flex:1;min-width:200px;font-size:13px"/>
+        <select id="ita-branch-filter" class="form-input" onchange="_renderITAProductList()" style="min-width:160px;font-size:13px">
+          <option value="all">All Branches</option>
+        </select>
+      </div>
+      <!-- Category filter bar -->
+      <div id="ita-cat-bar" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px"></div>
+      <!-- Results count -->
+      <div id="ita-results-count" style="font-size:11px;color:var(--muted);margin-bottom:8px"></div>
+      <!-- Product list -->
+      <div id="ita-product-list" style="display:flex;flex-direction:column;gap:8px"></div>
     </div>
     <!-- Visibility tab -->
     <div id="ita-visibility" style="display:none;padding:20px">
@@ -1154,7 +1293,7 @@ input:checked+.toggle-slider:before{transform:translateX(16px);background:#fff}
         <span style="width:7px;height:7px;border-radius:50%;background:var(--red);display:inline-block;animation:pulse 1.5s infinite"></span>
         <span id="shift-btn-label">Day Closed</span>
       </button>
-      <span id="mode-badge" class="mode-badge mode-restaurant" onclick="toggleMode()">🍔 Restaurant</span>
+      <span id="mode-badge" class="mode-badge mode-restaurant">🍔 Restaurant</span>
       <button onclick="openCustomerDisplay()" title="Customer Display" style="display:flex;align-items:center;gap:5px;padding:5px 10px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--muted);font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap" id="customer-display-btn">🖥 Display</button>
       <button class="lang-btn" onclick="toggleLang()" id="lang-btn">🌐 AR</button>
       <div class="user-chip">
@@ -1318,7 +1457,7 @@ input:checked+.toggle-slider:before{transform:translateX(16px);background:#fff}
     <div class="screen-header">
       <span class="screen-title" data-i18n="menu-title">Menu Management</span>
       <div style="display:flex;gap:8px;align-items:center">
-        <div id="menu-tabs" style="display:none;gap:4px;display:flex">
+        <div id="menu-tabs" style="display:none;gap:4px">
           <button id="menu-tab-items-btn" onclick="setMenuTab('items')" style="padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:var(--accent);color:#000;font-size:12px;font-weight:700;cursor:pointer">🍽 Items</button>
           <button id="menu-tab-control-btn" onclick="setMenuTab('control')" style="padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:12px;font-weight:700;cursor:pointer">🌿 Branch Control</button>
         </div>
@@ -1434,31 +1573,27 @@ input:checked+.toggle-slider:before{transform:translateX(16px);background:#fff}
       <div class="screen-title" style="padding:0 0 4px" data-i18n="settings-title">Settings</div>
       <div class="settings-section">
         <div class="settings-section-title">🏪 Business Info</div>
+        <div style="padding:10px 16px;background:rgba(88,166,255,.07);border-bottom:1px solid var(--border);font-size:12px;color:var(--muted);display:flex;align-items:center;gap:8px">
+          ⚙️ Business name, VAT, currency and receipt settings are managed in <strong style="color:#58a6ff;cursor:pointer" onclick="document.querySelector('[data-screen=settings]').click()">IT Admin Portal → Settings</strong>
+        </div>
         <div class="settings-row">
           <div><div class="settings-label">Business Name</div></div>
-          <div style="display:flex;gap:8px;align-items:center">
-            <input class="form-input" id="set-biz-name" style="width:180px" placeholder="My Business"/>
-            <button onclick="saveBizName()" style="padding:6px 14px;border-radius:8px;border:none;background:var(--accent);color:#000;font-size:12px;font-weight:700;cursor:pointer">Save</button>
-          </div>
+          <div style="font-size:13px;font-weight:700" id="set-biz-name-display">—</div>
         </div>
         <div class="settings-row">
           <div><div class="settings-label">Currency</div></div>
-          <select class="form-input" id="set-currency" style="width:130px" onchange="saveSetting('currency',this.value)">
-            <option value="SAR">SAR — Saudi Riyal</option>
-            <option value="AED">AED — UAE Dirham</option>
-            <option value="USD">USD — US Dollar</option>
-            <option value="KWD">KWD — Kuwaiti Dinar</option>
-          </select>
+          <div style="font-size:13px;color:var(--muted)" id="set-currency-display">SAR</div>
         </div>
         <div class="settings-row">
-          <div><div class="settings-label">VAT Rate</div><div class="settings-desc">Percentage applied to orders</div></div>
-          <input class="form-input" id="set-vat" type="number" style="width:80px" oninput="saveSetting('vat_rate',this.value)" value="15"/>
-        </div>
-        <div class="settings-row">
-          <div><div class="settings-label">Receipt Footer</div></div>
-          <input class="form-input" id="set-footer" style="width:200px" placeholder="Thank you!" oninput="saveSetting('receipt_footer',this.value)"/>
+          <div><div class="settings-label">VAT Rate</div></div>
+          <div style="font-size:13px;color:var(--muted)" id="set-vat-display">15%</div>
         </div>
       </div>
+      <!-- Hidden inputs kept for JS compatibility -->
+      <input type="hidden" id="set-biz-name"/>
+      <input type="hidden" id="set-currency"/>
+      <input type="hidden" id="set-vat"/>
+      <input type="hidden" id="set-footer"/>
       <div class="settings-section">
         <div class="settings-section-title">🖨 Printer & Receipt</div>
         <div class="settings-row">
@@ -1670,7 +1805,7 @@ input:checked+.toggle-slider:before{transform:translateX(16px);background:#fff}
       </div>
       <div class="panel">
         <div class="panel-header"><span class="panel-title">⭐ Loyalty Program</span>
-          <label class="toggle-switch"><input type="checkbox" id="loyalty-toggle" onchange="saveSetting('loyalty_enabled',this.checked)"/><span class="toggle-slider"></span></label>
+          <label class="toggle-switch"><input type="checkbox" id="loyalty-toggle" onchange="if(!getPlanLimits().hasLoyalty){this.checked=false;showUpgradeNotice('Customer Loyalty','growth');return;}saveSetting('loyalty_enabled',this.checked)"/><span class="toggle-slider"></span></label>
         </div>
         <div class="panel-body">
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
@@ -2658,6 +2793,70 @@ function showLoginForm(){
   document.getElementById('signup-form-panel').style.display='none';
   document.getElementById('login-form-panel').style.display='flex';
 }
+const LANDING_CONTENT={
+  restaurant:{
+    label:'Saudi Restaurants',
+    sub:'Multi-branch management, kitchen display, customer loyalty, inventory tracking — all in one place.',
+    features:[
+      {e:'🧾',t:'Smart POS',d:'Fast order taking, split bills, multiple payment methods'},
+      {e:'🍳',t:'Kitchen Display',d:'Real-time orders sent to kitchen screen automatically'},
+      {e:'🏪',t:'Multi-Branch',d:'Manage all your locations from one account'},
+      {e:'📊',t:'Reports & Analytics',d:'Sales reports, top items, staff performance'},
+      {e:'🎯',t:'Promotions',d:'BOGO, discounts, happy hour, Buy X Get 1 Free'},
+      {e:'👥',t:'Customer Loyalty',d:'Points system, purchase history, SMS receipts'},
+    ]
+  },
+  retail:{
+    label:'Saudi Retail Shops',
+    sub:'Barcode scanner, stock management, multi-branch inventory — everything your shop needs.',
+    features:[
+      {e:'🧾',t:'Smart POS',d:'Fast checkout, barcode scanner, multiple payment methods'},
+      {e:'📦',t:'Stock Management',d:'Real-time inventory tracking with low stock alerts'},
+      {e:'🔍',t:'Barcode Scanner',d:'Scan barcodes to add items instantly to cart'},
+      {e:'📊',t:'Reports & Analytics',d:'Sales reports, top products, staff performance'},
+      {e:'🏪',t:'Multi-Branch',d:'Manage all your store locations from one account'},
+      {e:'👥',t:'Customer Loyalty',d:'Points system, purchase history, SMS receipts'},
+    ]
+  },
+  coffee:{
+    label:'Saudi Coffee Shops',
+    sub:'Fast POS, order management, loyalty rewards — built for busy coffee shops.',
+    features:[
+      {e:'🧾',t:'Smart POS',d:'Fast order taking, customizations, multiple payment methods'},
+      {e:'🍳',t:'Kitchen Display',d:'Orders sent to barista screen automatically'},
+      {e:'🏪',t:'Multi-Branch',d:'Manage all your locations from one account'},
+      {e:'📊',t:'Reports & Analytics',d:'Sales reports, top drinks, staff performance'},
+      {e:'🎯',t:'Promotions',d:'Happy hour, discounts, loyalty rewards'},
+      {e:'👥',t:'Customer Loyalty',d:'Points system, purchase history, SMS receipts'},
+    ]
+  },
+};
+LANDING_CONTENT.bakery=LANDING_CONTENT.coffee;
+LANDING_CONTENT.other=LANDING_CONTENT.restaurant;
+
+function updateLandingForType(type){
+  const content=LANDING_CONTENT[type]||LANDING_CONTENT.restaurant;
+  const label=document.getElementById('landing-type-label');
+  const sub=document.getElementById('landing-sub');
+  const features=document.getElementById('landing-features');
+  if(label) label.textContent=content.label;
+  if(sub) sub.textContent=content.sub;
+  if(features) features.innerHTML=content.features.map(f=>`
+    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px">
+      <div style="font-size:28px;margin-bottom:10px">${f.e}</div>
+      <div style="font-size:14px;font-weight:700;margin-bottom:6px">${f.t}</div>
+      <div style="font-size:12px;color:var(--muted)">${f.d}</div>
+    </div>`).join('');
+}
+
+function signupAs(type){
+  showSignupForm();
+  // Pre-select business type and update landing content
+  setTimeout(()=>{
+    const sel=document.getElementById('su-type');
+    if(sel){sel.value=type;updateLandingForType(type);}
+  },100);
+}
 function showSignupForm(){
   document.getElementById('landing-page').style.display='none';
   document.getElementById('login-form-panel').style.display='none';
@@ -2804,6 +3003,13 @@ async function onSignedIn(user){
   document.getElementById('set-currency').value=_settings.currency||'SAR';
   document.getElementById('set-vat').value=_settings.vat_rate??15;
   document.getElementById('set-footer').value=_settings.receipt_footer||'';
+  // Update display-only fields in POS Settings
+  const bizNameDisp=document.getElementById('set-biz-name-display');
+  const currDisp=document.getElementById('set-currency-display');
+  const vatDisp=document.getElementById('set-vat-display');
+  if(bizNameDisp) bizNameDisp.textContent=_settings.biz_name||meta.biz_name||'—';
+  if(currDisp) currDisp.textContent=_settings.currency||'SAR';
+  if(vatDisp) vatDisp.textContent=(_settings.vat_rate??15)+'%';
   document.getElementById('set-auto-print').checked=!!_settings.auto_print;
   document.getElementById('set-show-vat').checked=_settings.show_vat!==false;
   document.getElementById('set-admin-pin').value=_settings.admin_pin||'';
@@ -2922,6 +3128,15 @@ async function _saveBranchesToDB(){
 async function saveBranch(){
   const name=document.getElementById('branch-name-input').value.trim();
   if(!name){showToast('Branch name is required',true);return;}
+  const lim=getPlanLimits();
+  const activeBranches=_branches.filter(b=>b.is_active!==false).length;
+  if(activeBranches>=lim.maxBranches){
+    const planName={starter:'Growth (199 SAR/mo)',growth:'Enterprise (399 SAR/mo)'}[lim.plan]||'a higher plan';
+    showToast(`⚡ Your ${lim.plan} plan allows max ${lim.maxBranches} branch${lim.maxBranches===1?'':'es'}. Upgrade to ${planName}.`,true,4000);
+    closeAddBranchModal();
+    setTimeout(()=>showUpgradeModal(),800);
+    return;
+  }
   const addr=document.getElementById('branch-addr-input').value.trim();
   const phone=document.getElementById('branch-phone-input').value.trim();
   // First branch always uses the original businessId so existing data is inherited
@@ -2938,6 +3153,14 @@ async function saveBranch(){
 async function addBranchFromSettings(){
   const name=document.getElementById('set-branch-name').value.trim();
   if(!name){showToast('Branch name is required',true);return;}
+  const lim=getPlanLimits();
+  const activeBranches=_branches.filter(b=>b.is_active!==false).length;
+  if(activeBranches>=lim.maxBranches){
+    const planName={starter:'Growth (199 SAR/mo)',growth:'Enterprise (399 SAR/mo)'}[lim.plan]||'a higher plan';
+    showToast(`⚡ Your ${lim.plan} plan allows max ${lim.maxBranches} branch${lim.maxBranches===1?'':'es'}. Upgrade to ${planName} to add more.`,true,4000);
+    setTimeout(()=>showUpgradeModal(),800);
+    return;
+  }
   const addr=document.getElementById('set-branch-addr').value.trim();
   const phone=document.getElementById('set-branch-phone').value.trim();
   // First branch always uses the original businessId so existing data is inherited
@@ -2983,6 +3206,7 @@ function renderBranchesSettings(){
 // ── LOAD ALL DATA ─────────────────────────────────────────────────────────────
 async function loadAll(){
   await Promise.all([loadCats(),loadProducts(),loadOrders(),loadTables(),loadCustomers(),loadStaff(),loadPromos()]);
+  // Auto-seed sample data for new businesses
   loadDevices();
   await loadShift();
   setInterval(updateShiftBtn,60000);
@@ -3144,6 +3368,8 @@ function applyMode(){
 
 // ── SCREEN NAV ────────────────────────────────────────────────────────────────
 function setScreen(name){
+  const lim=getPlanLimits();
+  if(name==='promos'&&!lim.hasPromotions){showUpgradeNotice('Promotions & Discounts','growth');return;}
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
   document.getElementById(name+'-screen').classList.add('active');
@@ -4928,7 +5154,13 @@ function openProductModal(id){
   document.getElementById('p-desc').value=_editProduct?.description||'';
   const barcodeGroup=document.getElementById('p-barcode-group');
   if(barcodeGroup) barcodeGroup.style.display=_mode==='retail'?'block':'none';
-  document.getElementById('p-barcode').value=_editProduct?.barcode||'';
+  // Auto-generate barcode for new products in retail mode
+  if(_mode==='retail'&&!_editProduct){
+    const auto='SKU-'+Date.now().toString().slice(-6)+'-'+Math.floor(Math.random()*1000).toString().padStart(3,'0');
+    document.getElementById('p-barcode').value=auto;
+  } else {
+    document.getElementById('p-barcode').value=_editProduct?.barcode||'';
+  }
   const comboGroup=document.getElementById('combo-toggle-group');
   if(comboGroup) comboGroup.style.display=_mode==='retail'?'none':'block';
   document.getElementById('p-emoji').value=_editProduct?.emoji||'';
@@ -5061,6 +5293,8 @@ async function saveProduct(){
   }
   btn.disabled=false;btn.textContent='Save Product';
   closeProductModal();renderProductsList();renderProducts();
+  // Refresh ITA products list if portal is open
+  if(document.getElementById('it-admin-portal')?.style.display==='flex') _renderITAProducts();
   showToast(_editProduct?'Product updated ✅':'Product added ✅');
 }
 async function deleteProduct(id){
@@ -5602,6 +5836,12 @@ async function saveStaff(){
     Object.assign(_editStaff,rec);
     if(_bizId) await sb.from('staff').update(rec).eq('id',_editStaff.id);
   } else {
+    const lim=getPlanLimits();
+    if(_staff.length>=lim.maxStaff){
+      showToast(`⚡ Your ${lim.plan} plan allows max ${lim.maxStaff} staff. Upgrade to Growth (199 SAR/mo) to add unlimited staff.`,true,4000);
+      setTimeout(()=>showUpgradeModal(),800);
+      return;
+    }
     if(_bizId){const{data}=await sb.from('staff').insert(rec).select().single();if(data)rec.id=data.id;}
     else rec.id='s-'+Date.now();
     _staff.push(rec);
@@ -6067,7 +6307,8 @@ function renderBranchControl(){
           <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end">`;
         for(const b of branches){
           const visible=_isVisibleOnBranch(p.id, b.id);
-          const isMain=b.id===_businessId;
+          const hasMain=_branches.some(x=>x.id===_businessId);
+    const isMain=hasMain?b.id===_businessId:i===0;
           html+=`<div style="display:flex;flex-direction:column;align-items:center;gap:3px;min-width:60px">
             <div style="font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60px;text-align:center">${isMain?'🏠 Main':b.name}</div>
             ${isMain
@@ -6547,12 +6788,30 @@ function saDeleteClient(bizId,name){
     confirmLabel:'🗑 Delete',
     confirmColor:'var(--red)',
     onConfirm:async()=>{
-      let error=null;
-      const{error:rpcErr}=await sb.rpc('sa_delete_business',{biz_id:bizId});
-      if(rpcErr){const res=await sb.from('businesses').delete().eq('id',bizId);error=res.error;}
-      if(error){showToast('RLS blocked — run SA SQL in Supabase',true);return;}
-      showToast('✅ Business deleted');
-      loadSAClients();
+      // Always auto-copy the auth cleanup SQL to clipboard
+      const authSql=`DELETE FROM auth.users WHERE email = '${ownerEmail}';`;
+      navigator.clipboard.writeText(authSql).catch(()=>{});
+      // Try RPC first
+      // Try full delete RPC (deletes auth.users too)
+      const{error:rpcErr}=await sb.rpc('sa_delete_client_full',{biz_id:bizId});
+      if(!rpcErr){
+        showToast('✅ Client fully deleted — email is now free for re-signup.');
+        loadSAClients();return;
+      }
+      // Fallback: old RPC (no auth delete)
+      const{error:rpc2Err}=await sb.rpc('sa_delete_business',{biz_id:bizId});
+      if(!rpc2Err){
+        showToast('⚠️ Business deleted but email not freed. Run SQL below in Supabase.',true,5000);
+        loadSAClients();
+      }
+      // Show manual SQL fallback
+      const manualSql=`DELETE FROM businesses WHERE id = '${bizId}';\nDELETE FROM auth.users WHERE email = '${ownerEmail}';`;
+      const box=document.createElement('div');
+      box.style.cssText='background:rgba(248,81,73,.08);border:1px solid rgba(248,81,73,.3);border-radius:12px;padding:16px;margin-bottom:12px';
+      box.innerHTML=`<div style="font-size:12px;font-weight:700;color:var(--red);margin-bottom:8px">⚠️ Run this in <a href="https://supabase.com/dashboard/project/hjygvfhxyonmizdleoqe/sql/new" target="_blank" style="color:#58a6ff">Supabase SQL Editor</a> to free the email:</div>
+        <pre style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px;font-size:11px;color:var(--text);white-space:pre-wrap">${manualSql}</pre>
+        <button onclick="navigator.clipboard.writeText(\`${manualSql}\`).then(()=>showToast('SQL copied!'))" style="margin-top:8px;padding:6px 14px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:12px;cursor:pointer;width:100%">📋 Copy SQL</button>`;
+      document.getElementById('sa-clients-list').prepend(box);
     }
   });
 }
@@ -6609,9 +6868,13 @@ $$;
 GRANT EXECUTE ON FUNCTION sa_get_all_businesses() TO authenticated;
 
 CREATE OR REPLACE FUNCTION sa_delete_business(biz_id uuid)
-RETURNS void LANGUAGE sql SECURITY DEFINER AS $$
-  DELETE FROM businesses WHERE id = biz_id
-  AND (SELECT email FROM auth.users WHERE id = auth.uid()) = 'md.nawas85@gmail.com';
+RETURNS void LANGUAGE plpgsql SECURITY DEFINER AS $$
+BEGIN
+  IF (SELECT email FROM auth.users WHERE id = auth.uid()) = 'md.nawas85@gmail.com' THEN
+    DELETE FROM orders WHERE orders.biz_id = sa_delete_business.biz_id;
+    DELETE FROM businesses WHERE id = sa_delete_business.biz_id;
+  END IF;
+END;
 $$;
 GRANT EXECUTE ON FUNCTION sa_delete_business(uuid) TO authenticated;
 
@@ -6748,12 +7011,23 @@ function _itaVerifyPin(){
     _itaUpdatePinDisplay();
   }
 }
-function _launchITAdminPortal(){
-  // Show/hide super admin tab
+async function _launchITAdminPortal(){
   const saTab=document.getElementById('ita-tab-superadmin');
   if(saTab) saTab.style.display=_isSuperAdmin()?'block':'none';
   document.getElementById('branch-screen').style.display='none';
   document.getElementById('it-admin-portal').style.display='flex';
+  // Load products/cats from main DB so Menu Visibility works
+  if(!_products.length||!_cats.length){
+    const mainId=_businessId||_bizId;
+    if(mainId){
+      const[pr,cr]=await Promise.all([
+        sb.from('products').select('*').eq('biz_id',mainId).order('sort_order'),
+        sb.from('categories').select('*').eq('biz_id',mainId).order('sort_order'),
+      ]);
+      if(pr.data?.length) _products=pr.data;
+      if(cr.data?.length) _cats=cr.data;
+    }
+  }
   setITATab('branches');
 }
 function closeITAdminPortal(){
@@ -6761,7 +7035,7 @@ function closeITAdminPortal(){
   showBranchScreen();
 }
 function setITATab(tab){
-  ['branches','visibility','dashboard','settings','superadmin'].forEach(t=>{
+  ['branches','products','visibility','dashboard','settings','superadmin'].forEach(t=>{
     const body=document.getElementById('ita-'+t);
     const btn=document.getElementById('ita-tab-'+t);
     if(body) body.style.display=t===tab?'block':'none';
@@ -6778,60 +7052,218 @@ function setITATab(tab){
     }
   });
   if(tab==='branches') _renderITABranches();
+  if(tab==='products') _renderITAProducts();
   if(tab==='visibility') _renderITAVisibility();
   if(tab==='dashboard') _renderITADashboard();
   if(tab==='settings') _renderITASettings();
   if(tab==='superadmin') _renderITASuperAdmin();
 }
 
+// ── ITA: PRODUCTS ────────────────────────────────────────────────────────────
+let _itaActiveCat='all';
+
+function _renderITAProducts(){
+  // Populate branch filter
+  const sel=document.getElementById('ita-branch-filter');
+  if(sel){
+    const cur=sel.value||'all';
+    sel.innerHTML='<option value="all">👁 All Branches</option>'+
+      _branches.map(b=>`<option value="${b.id}" ${cur===b.id?'selected':''}>${b.name}</option>`).join('');
+  }
+  _renderITACatBar();
+  _renderITAProductList();
+}
+function _renderITACatBar(){
+  const bar=document.getElementById('ita-cat-bar');
+  if(!bar) return;
+  bar.innerHTML=[{id:'all',name:'All',emoji:'📋'},..._cats].map(c=>`
+    <button onclick="itaFilterCat('${c.id}')" style="padding:6px 14px;border-radius:20px;border:1.5px solid ${_itaActiveCat===c.id?'var(--accent2)':'var(--border)'};background:${_itaActiveCat===c.id?'rgba(0,165,80,.12)':'var(--bg3)'};color:${_itaActiveCat===c.id?'var(--accent2)':'var(--text)'};font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap">
+      ${c.emoji||'📁'} ${c.name}
+    </button>`).join('');
+}
+function itaFilterCat(catId){_itaActiveCat=catId;_renderITAProducts();}
+function _renderITAProductList(){
+  const el=document.getElementById('ita-product-list');
+  const q=(document.getElementById('ita-search')?.value||'').toLowerCase().trim();
+  const branchFilter=document.getElementById('ita-branch-filter')?.value||'all';
+  let prods=_itaActiveCat==='all'?[..._products]:_products.filter(p=>p.cat_id===_itaActiveCat);
+  // Search filter
+  if(q) prods=prods.filter(p=>
+    p.name?.toLowerCase().includes(q)||
+    (p.name_ar||'').toLowerCase().includes(q)||
+    (p.barcode||'').toLowerCase().includes(q)||
+    (p.description||'').toLowerCase().includes(q)
+  );
+  // Branch visibility filter
+  if(branchFilter!=='all') prods=prods.filter(p=>_isVisibleOnBranch(p.id,branchFilter));
+  // Update results count
+  const countEl=document.getElementById('ita-results-count');
+  if(countEl){
+    const total=_products.length;
+    countEl.textContent=prods.length===total?`${total} products`:`${prods.length} of ${total} products${q?' matching "'+q+'"':''}${branchFilter!=='all'?' visible on '+(_branches.find(b=>b.id===branchFilter)?.name||branchFilter):''}`;
+  }
+  if(!prods.length){
+    el.innerHTML=`<div style="text-align:center;padding:40px;color:var(--muted)">No products${_itaActiveCat!=='all'?' in this category':' yet'}.</div>`;
+    return;
+  }
+  el.innerHTML=prods.map(p=>{
+    const cat=_cats.find(c=>c.id===p.cat_id);
+    const isActive=p.is_active!==false;
+    const branchCount=_branches.length;
+    const visCount=_branches.filter(b=>_isVisibleOnBranch(p.id,b.id)).length;
+    return`<div style="background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px">
+      ${p.image_url
+        ?`<img src="${p.image_url}" style="width:44px;height:44px;border-radius:8px;object-fit:cover;flex-shrink:0">`
+        :`<div style="width:44px;height:44px;border-radius:8px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">${p.emoji||'📦'}</div>`}
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}${p.name_ar?' / '+p.name_ar:''}</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">${cat?.name||'Uncategorized'} · ${fmtPrice(p.price)}${p.stock!=null?' · Stock: '+p.stock:''}</div>
+        ${p.barcode?`<div style="font-size:10px;color:var(--muted);font-family:monospace">${p.barcode}</div>`:''}
+        <div style="font-size:10px;margin-top:3px;color:${visCount===branchCount?'var(--accent2)':'var(--amber)'}">👁 Visible on ${visCount}/${branchCount} branches</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:5px;flex-shrink:0;align-items:flex-end">
+        <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;background:${isActive?'rgba(0,165,80,.12)':'rgba(248,81,73,.1)'};color:${isActive?'var(--accent2)':'var(--red)'}">${isActive?'● Active':'○ Hidden'}</span>
+        <button onclick="itaEditProduct('${p.id}')" style="padding:5px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:11px;font-weight:600;cursor:pointer">✏️ Edit</button>
+        <button onclick="itaDeleteProduct('${p.id}')" style="padding:5px 12px;border-radius:8px;border:1px solid rgba(248,81,73,.4);background:rgba(248,81,73,.07);color:var(--red);font-size:11px;font-weight:600;cursor:pointer">🗑</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function itaOpenProductModal(id){
+  _bizId=_businessId||_bizId;
+  openProductModal(id);
+  // Bring product modal above ITA portal
+  const pm=document.getElementById('product-modal');
+  if(pm) pm.style.zIndex='1000';
+}
+function itaEditProduct(id){itaOpenProductModal(id);}
+function itaDeleteProduct(id){
+  const p=_products.find(x=>x.id===id);
+  openSAModal({
+    title:'🗑 Delete Product',
+    subtitle:`Remove "${p?.name}"?`,
+    body:`<div style="background:rgba(248,81,73,.08);border:1px solid rgba(248,81,73,.3);border-radius:10px;padding:14px;font-size:13px;color:var(--muted)">This product will be removed from all branches.</div>`,
+    confirmLabel:'🗑 Delete',
+    confirmColor:'var(--red)',
+    onConfirm:async()=>{
+      _products=_products.filter(x=>x.id!==id);
+      const mainId=_businessId||_bizId;
+      if(mainId) await sb.from('products').delete().eq('id',id);
+      _renderITAProductList();
+      showToast('Product deleted');
+    }
+  });
+}
+function itaOpenCatModal(){
+  openCatModal();
+  const cm=document.getElementById('cat-modal');
+  if(cm) cm.style.zIndex='1000';
+}
+
 // ── ITA: BRANCHES ─────────────────────────────────────────────────────────────
 function _renderITABranches(){
   const el=document.getElementById('ita-branch-list');
   if(!_branches.length){
-    el.innerHTML='<div style="text-align:center;padding:40px;color:var(--muted)">No branches yet. Add your first branch.</div>';
+    el.innerHTML=`<div style="text-align:center;padding:40px">
+      <div style="font-size:40px;margin-bottom:12px">⚠️</div>
+      <div style="font-size:15px;font-weight:700;margin-bottom:8px">No branches found</div>
+      <div style="font-size:13px;color:var(--muted);margin-bottom:20px">Your main branch was deleted. Restore it to continue.</div>
+      <button onclick="restoreMainBranch()" style="padding:12px 28px;border-radius:12px;border:none;background:var(--accent2);color:#fff;font-size:14px;font-weight:700;cursor:pointer">🔄 Restore Main Branch</button>
+    </div>`;
     return;
   }
-  el.innerHTML=_branches.map((b,i)=>`
-    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:16px 18px;display:flex;align-items:center;gap:14px">
-      <div style="font-size:28px">🏪</div>
-      <div style="flex:1">
-        <div style="font-size:14px;font-weight:800">${b.name}</div>
-        ${b.address?`<div style="font-size:11px;color:var(--muted);margin-top:2px">📍 ${b.address}</div>`:''}
-        ${b.phone?`<div style="font-size:11px;color:var(--muted)">📞 ${b.phone}</div>`:''}
-        <div style="font-size:10px;color:var(--muted);margin-top:4px">ID: ${b.id.slice(0,12)}…</div>
+  el.innerHTML=_branches.map((b,i)=>{
+    const hasMain=_branches.some(x=>x.id===_businessId);
+    const isMain=hasMain?b.id===_businessId:i===0;
+    const isActive=b.is_active!==false;
+    const created=b.created_at?new Date(b.created_at).toLocaleDateString():'—';
+    return`<div style="background:var(--bg2);border:1.5px solid ${isActive?'rgba(0,165,80,.3)':'var(--border)'};border-radius:14px;padding:18px 20px;margin-bottom:2px">
+      <div style="display:flex;align-items:flex-start;gap:14px">
+        <div style="font-size:30px;margin-top:2px">🏪</div>
+        <div style="flex:1">
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px">
+            <div style="font-size:15px;font-weight:800">${b.name}</div>
+            ${isMain?'<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;background:rgba(88,166,255,.15);color:#58a6ff">MAIN</span>':''}
+            <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;background:${isActive?'rgba(0,165,80,.15)':'rgba(248,81,73,.12)'};color:${isActive?'var(--accent2)':'var(--red)'}">${isActive?'● Active':'○ Inactive'}</span>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:5px;font-size:12px;color:var(--muted)">
+            <div>${b.address?'📍 '+b.address:'📍 No address set'}</div>
+            <div>${b.phone?'📞 '+b.phone:'📞 No phone set'}</div>
+            <div>📅 Created: ${created}</div>
+            <div style="font-family:monospace;font-size:10px">🔑 ID: ${b.id.slice(0,16)}…</div>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;flex-shrink:0">
+          <button onclick="editITABranch('${b.id}')" style="padding:7px 16px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:12px;font-weight:600;cursor:pointer">✏️ Edit</button>
+          <button onclick="toggleITABranchActive('${b.id}',${!isActive})" style="padding:7px 16px;border-radius:8px;border:1px solid ${isActive?'rgba(248,81,73,.3)':'rgba(0,165,80,.3)'};background:${isActive?'rgba(248,81,73,.07)':'rgba(0,165,80,.07)'};color:${isActive?'var(--red)':'var(--accent2)'};font-size:12px;font-weight:600;cursor:pointer">${isActive?'⏸ Deactivate':'▶ Activate'}</button>
+          ${!isMain?`<button onclick="deleteITABranch('${b.id}','${b.name.replace(/'/g,"\\'")}')" style="padding:7px 16px;border-radius:8px;border:1px solid rgba(248,81,73,.4);background:rgba(248,81,73,.08);color:var(--red);font-size:12px;font-weight:600;cursor:pointer">🗑 Delete</button>`:''}
+        </div>
       </div>
-      <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
-        <span style="font-size:10px;font-weight:700;padding:3px 10px;border-radius:10px;background:rgba(0,165,80,.15);color:var(--accent2)">● Active</span>
-        <button onclick="editITABranch('${b.id}')" style="padding:5px 12px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text);font-size:11px;cursor:pointer">✏️ Edit</button>
-        ${i>0?`<button onclick="deleteITABranch('${b.id}','${b.name.replace(/'/g,"\\'")}' )" style="padding:5px 12px;border-radius:8px;border:1px solid rgba(248,81,73,.4);background:rgba(248,81,73,.08);color:var(--red);font-size:11px;cursor:pointer">🗑 Delete</button>`:'<span style="font-size:10px;color:var(--muted);padding:5px 0">Main Branch</span>'}
-      </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
+}
+async function restoreMainBranch(){
+  const name=prompt('Enter Main Branch name:') || 'Main Branch';
+  const branch={
+    id:_businessId,
+    name,
+    address:null,
+    phone:null,
+    is_active:true,
+    created_at:new Date().toISOString()
+  };
+  _branches=[branch];
+  await _saveBranchesToDB();
+  _renderITABranches();
+  showToast('✅ Main Branch restored! You can now enter and add data.');
+}
+async function toggleITABranchActive(branchId,setActive){
+  const b=_branches.find(x=>x.id===branchId);
+  if(!b) return;
+  b.is_active=setActive;
+  await _saveBranchesToDB();
+  _renderITABranches();
+  showBranchScreen();
+  setITATab('branches');
+  showToast(`${b.name} ${setActive?'activated ✅':'deactivated'}`);
 }
 function editITABranch(branchId){
   const b=_branches.find(x=>x.id===branchId);
   if(!b) return;
-  document.getElementById('branch-name-input').value=b.name;
-  document.getElementById('branch-addr-input').value=b.address||'';
-  document.getElementById('branch-phone-input').value=b.phone||'';
-  // Repurpose add modal as edit
-  const modal=document.getElementById('add-branch-modal');
-  modal.querySelector('div > div:first-child').textContent='✏️ Edit Branch';
-  const saveBtn=modal.querySelector('button.btn-primary');
-  saveBtn.textContent='Save Changes';
-  saveBtn.onclick=async()=>{
-    const name=document.getElementById('branch-name-input').value.trim();
-    if(!name){showToast('Name required',true);return;}
-    b.name=name;b.address=document.getElementById('branch-addr-input').value.trim()||null;
-    b.phone=document.getElementById('branch-phone-input').value.trim()||null;
-    await _saveBranchesToDB();
-    closeAddBranchModal();
-    _renderITABranches();
-    showToast('Branch updated ✅');
-    // Reset modal back to Add mode
-    modal.querySelector('div > div:first-child').textContent='🏪 Add Branch';
-    saveBtn.textContent='Save Branch';saveBtn.onclick=saveBranch;
-  };
-  modal.style.display='flex';
+  // Use a dedicated edit modal built inline
+  const existing=document.getElementById('ita-edit-branch-modal');
+  if(existing) existing.remove();
+  const modal=document.createElement('div');
+  modal.id='ita-edit-branch-modal';
+  modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;display:flex;align-items:center;justify-content:center';
+  modal.innerHTML=`<div style="background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:24px;width:100%;max-width:420px;margin:16px">
+    <div style="font-size:15px;font-weight:800;margin-bottom:16px">✏️ Edit Branch</div>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <input class="form-input" id="ita-edit-branch-name" value="${b.name}" placeholder="Branch Name *"/>
+      <input class="form-input" id="ita-edit-branch-addr" value="${b.address||''}" placeholder="Address"/>
+      <input class="form-input" id="ita-edit-branch-phone" value="${b.phone||''}" placeholder="Phone"/>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:16px">
+      <button onclick="saveITABranchEdit('${b.id}')" class="btn btn-primary" style="flex:1">💾 Save Changes</button>
+      <button onclick="document.getElementById('ita-edit-branch-modal').remove()" class="btn btn-secondary">Cancel</button>
+    </div>
+  </div>`;
+  document.body.appendChild(modal);
+}
+async function saveITABranchEdit(branchId){
+  const b=_branches.find(x=>x.id===branchId);
+  if(!b) return;
+  const name=document.getElementById('ita-edit-branch-name').value.trim();
+  if(!name){showToast('Name required',true);return;}
+  b.name=name;
+  b.address=document.getElementById('ita-edit-branch-addr').value.trim()||null;
+  b.phone=document.getElementById('ita-edit-branch-phone').value.trim()||null;
+  await _saveBranchesToDB();
+  document.getElementById('ita-edit-branch-modal').remove();
+  _renderITABranches();
+  showBranchScreen();
+  setITATab('branches');
+  showToast('Branch updated ✅');
 }
 async function deleteITABranch(branchId,name){
   openSAModal({
@@ -6878,15 +7310,26 @@ function _renderITAVisibilityBody(){
 
 // ── ITA: DASHBOARD ────────────────────────────────────────────────────────────
 async function _renderITADashboard(){
-  // Show owner dashboard panel on top of ITA portal
-  document.getElementById('owner-dashboard').style.display='flex';
-  await loadDashboard();
-  // Override close button to return to ITA
-  const closeBtn=document.querySelector('#owner-dashboard button[onclick="closeOwnerDashboard()"]');
-  if(closeBtn){
-    closeBtn.setAttribute('onclick','closeOwnerDashboardToITA()');
-    closeBtn.textContent='← IT Admin';
+  // Load orders for all branches if not loaded
+  if(!_orders.length&&_businessId){
+    const{data}=await sb.from('orders').select('*').eq('biz_id',_businessId).order('created_at',{ascending:false}).limit(1000);
+    if(data) _orders=data;
   }
+  // Show owner dashboard panel on top of ITA portal
+  const dash=document.getElementById('owner-dashboard');
+  dash.style.display='flex';
+  dash.style.zIndex='920'; // above ITA portal (880)
+  await loadDashboard();
+  // Override back button to return to ITA
+  setTimeout(()=>{
+    const btns=document.querySelectorAll('#owner-dashboard button');
+    btns.forEach(btn=>{
+      if(btn.textContent.includes('Back')||btn.textContent.includes('←')){
+        btn.setAttribute('onclick','closeOwnerDashboardToITA()');
+        btn.textContent='← IT Admin';
+      }
+    });
+  },100);
 }
 function closeOwnerDashboardToITA(){
   document.getElementById('owner-dashboard').style.display='none';
@@ -6973,6 +7416,80 @@ function closeSuperAdminToITA(){
   setITATab('branches');
 }
 
+// ── BUILT-IN TEST RUNNER (Super Admin only) ───────────────────────────────────
+async function runSystemTests(){
+  if(!_isSuperAdmin()){showToast('Super Admin only',true);return;}
+  const results=[];
+  const pass=(n)=>results.push({n,ok:true});
+  const fail=(n,r)=>results.push({n,ok:false,r});
+
+  // Auth
+  _user?pass('User logged in'):fail('User logged in','No user');
+  _businessId?pass('Business loaded'):fail('Business loaded','No businessId');
+  // Settings
+  _settings?.vat_rate!=null?pass('VAT rate set'):fail('VAT rate','Missing');
+  _settings?.currency?pass('Currency set'):fail('Currency','Missing');
+  // Branches
+  _branches.length>0?pass('Branches: '+_branches.length+' found'):fail('Branches','None found');
+  // Mode
+  pass('Mode: '+_mode);
+  // DB reads
+  const{data:cats}=await sb.from('categories').select('id').eq('biz_id',_businessId).limit(5);
+  cats?.length?pass('Categories in DB: '+cats.length):fail('Categories in DB','None - add via IT Admin');
+  const{data:prods}=await sb.from('products').select('id').eq('biz_id',_businessId).limit(5);
+  prods?.length?pass('Products in DB: '+prods.length):fail('Products in DB','None - add via IT Admin → Products');
+  // DB write test (insert + delete)
+  const{data:tc,error:tce}=await sb.from('categories').insert({biz_id:_businessId,name:'__test__',emoji:'🧪',sort_order:999}).select().single();
+  if(tc){pass('DB INSERT categories: OK');await sb.from('categories').delete().eq('id',tc.id);}
+  else fail('DB INSERT categories',tce?.message||'RLS blocking insert');
+  const{data:tp,error:tpe}=await sb.from('products').insert({biz_id:_businessId,name:'__test__',price:1,is_active:false,sort_order:999}).select().single();
+  if(tp){pass('DB INSERT products: OK');await sb.from('products').delete().eq('id',tp.id);}
+  else fail('DB INSERT products',tpe?.message||'RLS blocking insert');
+  // Staff & orders
+  const{data:st}=await sb.from('staff').select('id').eq('biz_id',_businessId);
+  pass('Staff accounts: '+(st?.length||0));
+  const{data:ord}=await sb.from('orders').select('id').eq('biz_id',_businessId).limit(1);
+  pass('Orders table: accessible');
+  // Subscription
+  pass('Plan: '+(_settings?.plan||'growth')+' · Status: '+(_settings?.status||'trial'));
+
+  const passed=results.filter(r=>r.ok).length;
+  const failed=results.filter(r=>!r.ok);
+  const el=document.createElement('div');
+  el.style.cssText='position:fixed;top:20px;right:20px;z-index:9999;background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;width:360px;max-height:80vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.5)';
+  el.innerHTML=`<div style="display:flex;justify-content:space-between;margin-bottom:12px"><b style="font-size:14px">🧪 System Tests</b><button onclick="this.closest('div[style]').remove()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:18px">✕</button></div>
+  <div style="font-size:12px;margin-bottom:12px;padding:8px 12px;border-radius:8px;background:${failed.length===0?'rgba(0,165,80,.1)':'rgba(248,81,73,.1)'};color:${failed.length===0?'var(--accent2)':'var(--red)'}"><b>${passed}/${results.length} passed</b> ${failed.length===0?'✅ All OK':'❌ '+failed.length+' failed'}</div>
+  ${results.map(r=>`<div style="display:flex;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px"><span>${r.ok?'✅':'❌'}</span><div><div style="font-weight:600">${r.n}</div>${!r.ok?`<div style="color:var(--red);font-size:11px">${r.r}</div>`:''}</div></div>`).join('')}`;
+  document.body.appendChild(el);
+  showToast(passed+'/'+results.length+' tests passed');
+}
+
+// ── PLAN ENFORCEMENT ─────────────────────────────────────────────────────────
+function getPlanLimits(){
+  const plan=_settings.plan||'starter';
+  return {
+    plan,
+    maxBranches: plan==='enterprise' ? Infinity : plan==='growth' ? 3 : 1,
+    maxStaff:    plan==='starter'    ? 3         : Infinity,
+    hasLoyalty:        plan!=='starter',
+    hasPromotions:     plan!=='starter',
+    hasOwnerDashboard: plan==='enterprise',
+    hasAdvancedReports:plan==='enterprise',
+  };
+}
+function planGate(feature, requiredPlan){
+  const planRank={starter:0,growth:1,enterprise:2};
+  const current=_settings.plan||'growth';
+  if((planRank[current]??0)>=(planRank[requiredPlan]??0)) return true;
+  showUpgradeNotice(feature, requiredPlan);
+  return false;
+}
+function showUpgradeNotice(feature, requiredPlan){
+  const label={growth:'Growth (199 SAR/mo)',enterprise:'Enterprise (399 SAR/mo)'};
+  showToast(`⚡ ${feature} requires ${label[requiredPlan]||requiredPlan} — upgrade to unlock`, true, 4000);
+  setTimeout(()=>showUpgradeModal(), 800);
+}
+
 // ── TRIAL & SUBSCRIPTION ─────────────────────────────────────────────────────
 function _checkTrial(){
   const trialEnd=_settings.trial_ends_at;
@@ -7032,9 +7549,32 @@ function showUpgradeModal(){
 
 // ── OWNER DASHBOARD ──────────────────────────────────────────────────────────
 async function openOwnerDashboard(){
+  if(!getPlanLimits().hasOwnerDashboard){showUpgradeNotice('Owner Dashboard','enterprise');return;}
   document.getElementById('role-screen').style.display='none';
   document.getElementById('owner-dashboard').style.display='flex';
   await loadDashboard();
+}
+async function clearAllBranchOrders(){
+  const allIds=[_businessId,..._branches.map(b=>b.id)].filter(Boolean);
+  openSAModal({
+    title:'🗑 Clear ALL Orders',
+    subtitle:'Delete all orders across ALL branches?',
+    body:`<div style="background:rgba(248,81,73,.08);border:1px solid rgba(248,81,73,.3);border-radius:10px;padding:14px;font-size:12px">
+      <div style="font-weight:700;color:var(--red);margin-bottom:6px">⚠️ This cannot be undone</div>
+      <div style="color:var(--muted)">Deletes all orders from: ${_branches.map(b=>b.name).join(', ')}</div>
+    </div>`,
+    confirmLabel:'🗑 Clear All Orders',
+    confirmColor:'var(--red)',
+    onConfirm:async()=>{
+      showToast('⏳ Clearing all orders...');
+      for(const id of allIds){
+        await sb.from('orders').delete().eq('biz_id',id);
+      }
+      _orders=[];_orderNum=1;
+      await loadDashboard();
+      showToast('✅ All orders cleared across all branches');
+    }
+  });
 }
 function closeOwnerDashboard(){
   document.getElementById('owner-dashboard').style.display='none';
@@ -7169,6 +7709,16 @@ function showPinPanel(role){
   document.getElementById('rs-pin-panel').style.display='block';
   document.getElementById('pin-display').textContent='';
   document.getElementById('pin-error').textContent='';
+  // Keyboard support
+  if(document._pinKeyHandler) document.removeEventListener('keydown',document._pinKeyHandler);
+  document._pinKeyHandler=function(e){
+    if(document.getElementById('rs-pin-panel').style.display==='none') return;
+    if(e.key>='0'&&e.key<='9') pinKey(e.key);
+    else if(e.key==='Backspace') pinKey('\u232b');
+    else if(e.key==='Enter') verifyPin();
+    else if(e.key==='Escape'){document.removeEventListener('keydown',document._pinKeyHandler);showRoleCards();}
+  };
+  document.addEventListener('keydown',document._pinKeyHandler);
   const staffEl=document.getElementById('pin-staff-list');
   if(role==='admin'){
     document.getElementById('pin-panel-label').textContent='🔐 Enter IT Admin PIN';
@@ -7336,61 +7886,70 @@ async function adminClearKitchen(){
   });
 }
 
+function _adminTargetBranchId(){
+  // Use current branch if inside a branch, otherwise ask user to pick
+  return _bizId||_businessId;
+}
+function _adminBranchName(){
+  const b=_branches.find(x=>x.id===_bizId);
+  return b?b.name:'This Branch';
+}
 async function adminClearAllOrders(){
+  const targetId=_adminTargetBranchId();
+  const branchName=_adminBranchName();
+  if(!targetId){showToast('No branch selected',true);return;}
   confirmDelete({
     icon:'🗑',
-    title:'Clear ALL Orders — Fresh Start?',
-    name:'This permanently deletes every order from the database and resets order numbering to #001. This cannot be undone.'
+    title:'Clear Orders — '+branchName,
+    name:`Permanently deletes ALL orders for "${branchName}" only. Other branches are NOT affected. Resets order numbering to #001.`
   },async()=>{
-    if(!_bizId){showToast('No business found',true);return;}
-    showToast('⏳ Deleting all orders...');
-    const{error}=await sb.from('orders').delete().eq('biz_id',_bizId);
+    showToast('⏳ Deleting orders for '+branchName+'...');
+    const{error}=await sb.from('orders').delete().eq('biz_id',targetId);
     if(error){showToast('Error: '+error.message,true);return;}
-    // Reset order counter in settings
-    await sb.from('settings').upsert({biz_id:_bizId,key:'order_counter',value:'0'},{onConflict:'biz_id,key'});
-    _orders=[];
-    _orderNum=1;
-    newOrder();
+    await sb.from('settings').upsert({biz_id:targetId,key:'order_counter',value:'0'},{onConflict:'biz_id,key'});
+    if(targetId===_bizId){_orders=[];_orderNum=1;newOrder();}
     await renderAdminPanel();
-    showToast('✅ All orders cleared — starting from #001');
-    await auditLog('CLEAR_ALL_ORDERS',{by:_pinStaff?.name||'IT Admin',at:new Date().toISOString()});
+    showToast(`✅ Orders cleared for ${branchName} — starting from #001`);
+    await auditLog('CLEAR_ALL_ORDERS',{branch:branchName,by:_pinStaff?.name||'IT Admin'});
   });
 }
 
 async function adminClearAuditLog(){
+  const targetId=_adminTargetBranchId();
+  const branchName=_adminBranchName();
+  if(!targetId){showToast('No branch selected',true);return;}
   confirmDelete({
     icon:'📋',
-    title:'Clear Audit Log?',
-    name:'All audit log entries will be permanently deleted.',
+    title:'Clear Audit Log — '+branchName,
+    name:`Clears audit log for "${branchName}" only. Other branches are NOT affected.`,
     confirmLabel:'Clear Log',
     confirmColor:'var(--red)'
   },async()=>{
-    if(!_bizId){showToast('No business found',true);return;}
-    const{error}=await sb.from('audit_logs').delete().eq('biz_id',_bizId);
+    const{error}=await sb.from('audit_logs').delete().eq('biz_id',targetId);
     if(error){showToast('Error: '+error.message,true);return;}
-    showToast('✅ Audit log cleared');
+    showToast(`✅ Audit log cleared for ${branchName}`);
     loadAuditLogs();
   });
 }
 
 async function adminFullReset(){
+  const targetId=_adminTargetBranchId();
+  const branchName=_adminBranchName();
+  if(!targetId){showToast('No branch selected',true);return;}
   confirmDelete({
     icon:'⚠️',
-    title:'Full Test Reset?',
-    name:'Clears ALL orders, ALL audit logs, and resets order counter to #001. Use only during testing.',
+    title:'Full Reset — '+branchName+' only',
+    name:`Clears ALL orders and audit logs for "${branchName}" only. Other branches are NOT affected.`,
     confirmLabel:'Full Reset',
     confirmColor:'var(--red)'
   },async()=>{
-    if(!_bizId){showToast('No business found',true);return;}
-    showToast('⏳ Running full reset...');
-    await sb.from('orders').delete().eq('biz_id',_bizId);
-    await sb.from('audit_logs').delete().eq('biz_id',_bizId);
-    await sb.from('settings').upsert({biz_id:_bizId,key:'order_counter',value:'0'},{onConflict:'biz_id,key'});
-    _orders=[];
-    _orderNum=1;
-    newOrder();
+    showToast('⏳ Running full reset for '+branchName+'...');
+    await sb.from('orders').delete().eq('biz_id',targetId);
+    await sb.from('audit_logs').delete().eq('biz_id',targetId);
+    await sb.from('settings').upsert({biz_id:targetId,key:'order_counter',value:'0'},{onConflict:'biz_id,key'});
+    if(targetId===_bizId){_orders=[];_orderNum=1;newOrder();}
     await renderAdminPanel();
-    showToast('✅ Full reset complete — fresh start from #001');
+    showToast(`✅ Full reset complete for ${branchName}`);
   });
 }
 
@@ -7496,11 +8055,22 @@ function applyRoleNav(){
       ?['pos','orders','customers']
       :['pos','tables','kitchen','orders','customers'];
   }
-  // Apply visibility to all nav tabs
+  // Apply visibility to all nav tabs + plan lock badges
+  const lim=getPlanLimits();
+  const planLocked={promos:!lim.hasPromotions};
   document.querySelectorAll('.nav-tab').forEach(btn=>{
     const screen=btn.dataset.screen;
     if(!screen) return;
     btn.style.display=allowed.includes(screen)?'':'none';
+    const existing=btn.querySelector('.plan-lock');
+    if(existing) existing.remove();
+    if(planLocked[screen]){
+      const badge=document.createElement('span');
+      badge.className='plan-lock';
+      badge.textContent='🔒';
+      badge.style.cssText='font-size:9px;margin-left:3px;opacity:.7';
+      btn.appendChild(badge);
+    }
   });
   // Force hide tables/kitchen in retail regardless
   if(isRetail){
@@ -8280,3 +8850,4 @@ function applyCdPaid(d){
 </script>
 </body>
 </html>
+<!-- deploy 1780583502 -->
