@@ -7003,7 +7003,8 @@ function saChangePlan(bizId){
             showToast(`⚠️ Please select only ${newLimit} branch${newLimit>1?'es':''} to keep`,true);
             return false;
           }
-          const{data:allBranches}=await sb.from('branches').select('id,is_active').eq('business_id',bizId);
+          const{data:allBranchesRpc}=await sb.rpc('sa_get_all_branches');
+          const allBranches=(allBranchesRpc||[]).filter(b=>b.business_id===bizId);
           for(const b of (allBranches||[])){
             const shouldBeActive=keepIds.includes(b.id);
             if(b.is_active!==shouldBeActive){
@@ -7034,7 +7035,8 @@ function saChangePlan(bizId){
         if(!picker) return;
         if((planRank[selected]||0)<(planRank[current]||0)){
           const newLimit=PLAN_BRANCH_LIMITS[selected]||1;
-          const{data:branches}=await sb.from('branches').select('id,name,is_active').eq('business_id',bizId).order('created_at',{ascending:true});
+          const{data:branchesRpc}=await sb.rpc('sa_get_all_branches');
+          const branches=(branchesRpc||[]).filter(b=>b.business_id===bizId).sort((a,b)=>new Date(a.created_at)-new Date(b.created_at));
           const active=(branches||[]).filter(b=>b.is_active!==false);
           if(active.length>newLimit){
             picker.style.display='block';
