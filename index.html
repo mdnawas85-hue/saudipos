@@ -2979,18 +2979,27 @@ async function onSignedIn(user){
     _mode=biz.type||'restaurant';
     _settings={..._settings,...(biz.settings||{})};
   }
-  // Load branches from businesses.settings.branches (no extra table needed)
-  _branches=(biz?.settings?.branches||[]).filter(b=>b.is_active!==false);
-  // Auto-fix: if first branch has a wrong ID (not the businessId), correct it
-  // Auto-fix: any branch with non-UUID id (br-TIMESTAMP) gets a proper UUID
-  let needsSave=false;
-  if(_branches.length>0&&_branches[0].id!==_businessId&&_branches[0].id.startsWith('br-')){
-    _branches[0].id=_businessId;needsSave=true;
+  // Load branches from dedicated branches table
+  const{data:branchRows}=await sb.from('branches').select('*').eq('business_id',_businessId).order('created_at',{ascending:true});
+  if(branchRows&&branchRows.length>0){
+    _branches=branchRows;
+  } else {
+    // Fallback: migrate from settings.branches if branches table is empty
+    const legacy=(biz?.settings?.branches||[]);
+    if(legacy.length>0){
+      const toInsert=legacy.map(b=>({
+        id:b.id&&b.id.length===36?b.id:crypto.randomUUID(),
+        business_id:_businessId,
+        name:b.name,address:b.address||null,phone:b.phone||null,
+        is_active:b.is_active!==false,
+        created_at:b.created_at||new Date().toISOString()
+      }));
+      await sb.from('branches').upsert(toInsert,{onConflict:'id',ignoreDuplicates:true});
+      _branches=toInsert;
+    } else {
+      _branches=[];
+    }
   }
-  for(let i=1;i<_branches.length;i++){
-    if(_branches[i].id.startsWith('br-')){_branches[i].id=crypto.randomUUID();needsSave=true;}
-  }
-  if(needsSave) await sb.from('businesses').update({settings:{...(biz.settings||{}),branches:_branches}}).eq('id',_businessId);
   // Trial check
   _checkTrial();
   // Set user UI
@@ -3120,8 +3129,19 @@ function closeAddBranchModal(){
 
 async function _saveBranchesToDB(){
   if(!_businessId){showToast('Error: business not loaded — please refresh',true);return;}
-  _settings.branches=_branches;
-  const{error}=await sb.from('businesses').update({settings:{..._settings,branches:_branches}}).eq('id',_businessId);
+  // Save to branches table (source of truth)
+  const{error}=await sb.from('branches').upsert(
+    _branches.map(b=>({...b,business_id:_businessId})),
+    {onConflict:'id'}
+  );
+  if(error) showToast('Save failed: '+error.message,true);
+}
+async function _insertBranch(branch){
+  const{error}=await sb.from('branches').insert({...branch,business_id:_businessId});
+  if(error) showToast('Save failed: '+error.message,true);
+}
+async function _updateBranch(id,fields){
+  const{error}=await sb.from('branches').update(fields).eq('id',id);
   if(error) showToast('Save failed: '+error.message,true);
 }
 
@@ -3132,18 +3152,20 @@ async function saveBranch(){
   const activeBranches=_branches.filter(b=>b.is_active!==false).length;
   if(activeBranches>=lim.maxBranches){
     const planName={starter:'Growth (199 SAR/mo)',growth:'Enterprise (399 SAR/mo)'}[lim.plan]||'a higher plan';
-    showToast(`⚡ Your ${lim.plan} plan allows max ${lim.maxBranches} branch${lim.maxBranches===1?'':'es'}. Upgrade to ${planName}.`,true,4000);
+    const msg=lim.plan==='enterprise'
+      ?`⚡ Enterprise plan includes ${lim.maxBranches} branches. Additional branches are billed at 20 SAR/branch/mo — contact us to expand.`
+      :`⚡ Your ${lim.plan} plan allows max ${lim.maxBranches} branch${lim.maxBranches===1?'':'es'}. Upgrade to ${planName}.`;
+    showToast(msg,true,5000);
     closeAddBranchModal();
     setTimeout(()=>showUpgradeModal(),800);
     return;
   }
   const addr=document.getElementById('branch-addr-input').value.trim();
   const phone=document.getElementById('branch-phone-input').value.trim();
-  // First branch always uses the original businessId so existing data is inherited
   const branchId=_branches.length===0?_businessId:(crypto.randomUUID());
-  const branch={id:branchId,name,address:addr||null,phone:phone||null,is_active:true,created_at:new Date().toISOString()};
+  const branch={id:branchId,business_id:_businessId,name,address:addr||null,phone:phone||null,is_active:true,created_at:new Date().toISOString()};
   _branches.push(branch);
-  await _saveBranchesToDB();
+  await _insertBranch(branch);
   closeAddBranchModal();
   showToast('Branch added!');
   showBranchScreen();
@@ -3157,17 +3179,19 @@ async function addBranchFromSettings(){
   const activeBranches=_branches.filter(b=>b.is_active!==false).length;
   if(activeBranches>=lim.maxBranches){
     const planName={starter:'Growth (199 SAR/mo)',growth:'Enterprise (399 SAR/mo)'}[lim.plan]||'a higher plan';
-    showToast(`⚡ Your ${lim.plan} plan allows max ${lim.maxBranches} branch${lim.maxBranches===1?'':'es'}. Upgrade to ${planName} to add more.`,true,4000);
+    const msg=lim.plan==='enterprise'
+      ?`⚡ Enterprise plan includes ${lim.maxBranches} branches. Additional branches are billed at 20 SAR/branch/mo — contact us to expand.`
+      :`⚡ Your ${lim.plan} plan allows max ${lim.maxBranches} branch${lim.maxBranches===1?'':'es'}. Upgrade to ${planName} to add more.`;
+    showToast(msg,true,5000);
     setTimeout(()=>showUpgradeModal(),800);
     return;
   }
   const addr=document.getElementById('set-branch-addr').value.trim();
   const phone=document.getElementById('set-branch-phone').value.trim();
-  // First branch always uses the original businessId so existing data is inherited
   const branchId=_branches.length===0?_businessId:(crypto.randomUUID());
-  const branch={id:branchId,name,address:addr||null,phone:phone||null,is_active:true,created_at:new Date().toISOString()};
+  const branch={id:branchId,business_id:_businessId,name,address:addr||null,phone:phone||null,is_active:true,created_at:new Date().toISOString()};
   _branches.push(branch);
-  await _saveBranchesToDB();
+  await _insertBranch(branch);
   document.getElementById('set-branch-name').value='';
   document.getElementById('set-branch-addr').value='';
   document.getElementById('set-branch-phone').value='';
@@ -3178,7 +3202,7 @@ async function addBranchFromSettings(){
 
 async function toggleBranchActive(branchId,current){
   const br=_branches.find(b=>b.id===branchId);
-  if(br){br.is_active=!current;await _saveBranchesToDB();}
+  if(br){br.is_active=!current;await _updateBranch(branchId,{is_active:!current});}
   renderBranchesSettings();
 }
 
@@ -7469,8 +7493,8 @@ function getPlanLimits(){
   const plan=_settings.plan||'starter';
   return {
     plan,
-    maxBranches: plan==='enterprise' ? Infinity : plan==='growth' ? 3 : 1,
-    maxStaff:    plan==='starter'    ? 3         : Infinity,
+    maxBranches: plan==='enterprise' ? 20 : plan==='growth' ? 3 : 1,
+    maxStaff:    plan==='starter'    ? 3  : Infinity,
     hasLoyalty:        plan!=='starter',
     hasPromotions:     plan!=='starter',
     hasOwnerDashboard: plan==='enterprise',
